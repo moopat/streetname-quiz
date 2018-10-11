@@ -130,26 +130,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun makeCorrectSelection(callback: () -> Unit) {
-        currentlyLoading.postValue(true)
-        solvable.postValue(false)
-
-        streetLinesInternal.clear()
-        streetLines.postValue(streetLinesInternal)
-
-        doAsync {
-            getFeaturesByName(currentObjective.value!!)
-                    .map { it.geometry as LineString }
-                    .forEach { lineString ->
-                        streetLinesInternal.add(lineString)
-                    }
-            streetLines.postValue(streetLinesInternal)
-            currentlyLoading.postValue(false)
-            uiThread { callback.invoke() }
-        }
-    }
-
-    fun getFeaturesByName(name: String): List<Feature> {
+    private fun getFeaturesByName(name: String): List<Feature> {
         return featureCollection!!.features
                 .asSequence()
                 .filter { it.properties.optString("name", "hugo") == name }
