@@ -15,4 +15,18 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="Starter">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="Starter.Heading">
+        <item name="android:textSize">@dimen/text_huge</item>
+    </style>
+
+    <style name="StarterButton" parent="Base.Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>

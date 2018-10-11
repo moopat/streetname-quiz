@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Straßennamen Graz</string>
+    <string name="title_activity_maps">Straßennamen Graz</string>
+    <string name="button_solution">Lösung</string>
+    <string name="button_next">Weiter</string>
+    <string name="solution_incorrect_detail">Du hast \'%s\' ausgewählt.</string>
+    <string name="button_skip">Überspringen</string>
+    <string name="starter_btn_privacy">Datenschutz</string>
+    <string name="starter_btn_licenses">Lizenzen</string>
+    <string name="starter_btn_legal">Rechtliches</string>
+    <string name="starter_title">Lern Graz kennen!</string>
+    <string name="starter_intro">Es ist einfach: wir sagen dir einen Straßennamen und du suchst die Straße auf einer blinden Karte von Graz.</string>
+    <string name="starter_policy">Akzeptiere unsere Datenschutzbestimmungen um zu beginnen.</string>
+    <string name="starter_btn_accept">Akzeptieren und beginnen</string>
+    <string name="starter_beta">Das eine möglicherweise instabile öffentliche Beta-Version die sich im Laufe der Zeit ändern wird.</string>
+</resources>

@@ -68,6 +68,18 @@
         android:layout_above="@id/rlStatus"
         tools:context=".MapsActivity"/>
 
+    <ImageView
+        android:id="@+id/btnMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/padding_large"
+        android:layout_marginEnd="8dp"
+        android:foreground="?android:selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:src="@drawable/ic_action_more_vert"/>
+
     <RelativeLayout
         android:id="@+id/rlSuccess"
         android:layout_width="match_parent"

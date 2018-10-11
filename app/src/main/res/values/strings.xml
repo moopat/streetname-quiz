@@ -1,8 +1,16 @@
 <resources>
     <string name="app_name">Street Name Quiz</string>
-    <string name="title_activity_maps">Straßenquiz Graz</string>
-    <string name="button_solution">Lösung</string>
-    <string name="button_next">Weiter</string>
-    <string name="solution_incorrect_detail">Du hast auf \'%s\' getippt.</string>
-    <string name="button_skip">Überspringen</string>
+    <string name="title_activity_maps">Street Name Quiz Graz</string>
+    <string name="button_solution">Solution</string>
+    <string name="button_next">Next</string>
+    <string name="solution_incorrect_detail">You picked \'%s\'.</string>
+    <string name="button_skip">Skip</string>
+    <string name="starter_btn_privacy">Privacy Policy</string>
+    <string name="starter_btn_licenses">Licenses</string>
+    <string name="starter_btn_legal">Legal</string>
+    <string name="starter_title">Let\'s get to know Graz!</string>
+    <string name="starter_intro">It\'s quite simple: we\'ll show you a street name and you will need to find it on a blind map of Graz.</string>
+    <string name="starter_policy">Accept our privacy policy to start.</string>
+    <string name="starter_btn_accept">Accept and start</string>
+    <string name="starter_beta">This is a public beta version. Please report any issues that you come across (through the email in the Store). Expect the app to change.</string>
 </resources>

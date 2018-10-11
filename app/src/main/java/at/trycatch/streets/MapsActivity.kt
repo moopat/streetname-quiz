@@ -2,6 +2,7 @@ package at.trycatch.streets
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
@@ -10,6 +11,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.widget.PopupMenu
+import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.viewmodel.MapsViewModel
 import com.cocoahero.android.geojson.FeatureCollection
 import com.cocoahero.android.geojson.GeoJSON
@@ -40,6 +43,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        startActivity(Intent(this, StarterActivity::class.java))
 
         model = ViewModelProviders.of(this).get(MapsViewModel::class.java)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -125,6 +130,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             model.solveRound {
                 zoomToCurrentSelection()
             }
+        }
+
+        btnMore.setOnClickListener {
+            val menu = PopupMenu(this, it)
+            menu.inflate(R.menu.menu_main)
+            menu.show()
         }
     }
 
