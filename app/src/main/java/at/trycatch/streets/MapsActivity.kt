@@ -184,7 +184,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun zoomToCurrentSelection() {
         val builder = LatLngBounds.Builder()
         lines.flatMap { it.points }.forEach { builder.include(it) }
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 180))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 250))
     }
 
     fun LineString.toPolyline(googleMap: GoogleMap) = googleMap.addPolyline(PolylineOptions()
