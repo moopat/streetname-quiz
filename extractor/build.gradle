@@ -1,8 +1,39 @@
-apply plugin: 'java-library'
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "at.trycatch.extractor.Extractor"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'de.grundid.opendatalab:geojson-jackson:1.8.1'
 }
 
-sourceCompatibility = "7"
-targetCompatibility = "7"
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src/main/java"]
+        }
+        resources {
+            srcDirs = ["src/main/resources"]
+        }
+    }
+}
+
+task generateStreets(dependsOn: 'run') {
+    group 'application'
+    description 'Generates street index and features and copies them.'
+
+    doLast {
+        copy {
+            from 'graz.json'
+            into '../app/src/main/res/raw'
+        }
+        copy {
+            from 'grazstreets.txt'
+            into '../app/src/main/res/raw'
+        }
+    }
+}

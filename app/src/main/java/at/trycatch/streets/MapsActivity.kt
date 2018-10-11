@@ -34,6 +34,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val lines = mutableListOf<Polyline>()
     private var bounceAnimation: YoYo.YoYoString? = null
 
+    // Updated by changes in the game state. Ad-hoc evaluation.
+    private var mayClickMap = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -43,6 +46,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        model.streetNames.observe(this, Observer {
+            if (it != null) model.startNewRound()
+        })
+
+        model.initializeStreets()
+
+        model.currentGameState.observe(this, Observer {
+            if (it == null) return@Observer
+
+            when (it) {
+                MapsViewModel.STATE_GUESSING -> {
+                    mayClickMap = true
+                    stopBounceAnimation()
+
+                    btnNext.setTextColor(ContextCompat.getColor(this, R.color.semiWhite))
+                    btnNext.setText(R.string.button_skip)
+                }
+                MapsViewModel.STATE_WON -> {
+                    mayClickMap = false
+                    startBounceAnimation()
+
+                    btnNext.setText(R.string.button_next)
+                    btnNext.setTextColor(ContextCompat.getColor(this, R.color.white))
+                }
+                MapsViewModel.STATE_SURRENDERED -> {
+                    mayClickMap = false
+                    startBounceAnimation()
+
+                    btnNext.setText(R.string.button_next)
+                    btnNext.setTextColor(ContextCompat.getColor(this, R.color.white))
+                }
+            }
+        })
 
         model.currentObjective.observe(this, android.arch.lifecycle.Observer {
             // We found a new objective.
@@ -66,24 +103,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (it == true) confirm.show() else confirm.hide()
         })
 
-        model.currentlyWaitingForNext.observe(this, Observer {
-            bounceAnimation?.stop()
-            if (it == true) {
-                btnNext.setText(R.string.button_next)
-                btnNext.setTextColor(ContextCompat.getColor(this, R.color.white))
-                bounceAnimation = YoYo.with(Techniques.Bounce).delay(2000).playOn(btnNext)
-            } else {
-                btnNext.setTextColor(ContextCompat.getColor(this, R.color.semiWhite))
-                btnNext.setText(R.string.button_skip)
-            }
-        })
-
         confirm.setOnClickListener {
             if (model.solve()) {
                 rlSuccess.visibility = View.VISIBLE
                 YoYo.with(Techniques.StandUp).duration(500).playOn(rlSuccess)
                 scheduleToHideNotifications()
-                zoomToSolution()
+                zoomToCurrentSelection()
             } else {
                 rlError.visibility = View.VISIBLE
                 tvErrorDetail.text = getString(R.string.solution_incorrect_detail, model.getSelectedStreetName())
@@ -97,8 +122,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         btnSolution.setOnClickListener {
-            model.makeCorrectSelection {
-                zoomToSolution()
+            model.solveRound {
+                zoomToCurrentSelection()
             }
         }
     }
@@ -122,7 +147,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz)) as FeatureCollection
 
             googleMap.setOnMapClickListener { latLng ->
-                if (model.solved) return@setOnMapClickListener
+                if (!mayClickMap) return@setOnMapClickListener
                 hideNotificationsNow()
                 model.makeSelectionByCoordinates(latLng)
             }
@@ -137,6 +162,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
+    private fun startBounceAnimation() {
+        stopBounceAnimation()
+        bounceAnimation = YoYo.with(Techniques.Bounce).delay(2000).playOn(btnNext)
+    }
+
+    private fun stopBounceAnimation() {
+        bounceAnimation?.stop()
+    }
+
     private fun scheduleToHideNotifications() {
         handler.postDelayed({ hideNotificationsNow() }, 5000)
     }
@@ -147,7 +181,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         YoYo.with(Techniques.FadeOut).duration(500).onEnd { rlError.visibility = View.INVISIBLE }.playOn(rlError)
     }
 
-    private fun zoomToSolution() {
+    private fun zoomToCurrentSelection() {
         val builder = LatLngBounds.Builder()
         lines.flatMap { it.points }.forEach { builder.include(it) }
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 180))
