@@ -144,7 +144,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun solve(): Boolean {
         Log.d("MapsViewModel", "Selected " + selectedFeature!!.properties.getString("name") + ". Should have ${currentObjective.value}")
-        solved = selectedFeature!!.properties.getString("name") == currentObjective.value
+        solved = selectedFeature!!.properties.getString("name").normalize() == currentObjective.value?.normalize()
         if (solved) {
             currentGameState.postValue(STATE_WON)
             solvable.postValue(false)
@@ -163,5 +163,14 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         otherLocation.longitude = it.longitude
         location.distanceTo(otherLocation).toInt()
     }.min()!!
+
+    fun String.normalize(): String {
+        return this.toLowerCase()
+                .replace("st.", "sankt")
+                .replace("prof.", "professor")
+                .replace(".", "")
+                .replace(" ", "")
+                .replace("-", "")
+    }
 
 }
