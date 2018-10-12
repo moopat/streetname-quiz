@@ -18,4 +18,5 @@
     <string name="feedback_dialog_contents">Du wirst in deine E-Mail-App umgeleitet um dein Feedback zu senden.</string>
     <string name="all_ok">OK</string>
     <string name="all_cancel">Abbrechen</string>
+    <string name="dialog_points_message">Für jeden richtigen Tipp erhältst du 10 Punkte. Pro Runde bekommst du -3 Punkte wenn du einen falschen Tipp abgibst, die Straße überspringst oder die Lösung ansiehst.</string>
 </resources>

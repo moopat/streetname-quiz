@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
@@ -118,6 +119,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         model.points.observe(this, Observer {
             tvPoints.text = it?.toString()
+            if (it != null && it < 0) {
+                tvPoints.setBackgroundResource(R.drawable.bg_red_rounded)
+            } else {
+                tvPoints.setBackgroundResource(R.drawable.bg_accent_rounded)
+            }
         })
 
         confirm.setOnClickListener {
@@ -154,6 +160,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         btnMore.setOnClickListener {
             MapsPopupMenu(this, it).show()
+        }
+
+        tvPoints.setOnClickListener {
+            AlertDialog.Builder(this)
+                    .setMessage(R.string.dialog_points_message)
+                    .setPositiveButton(R.string.all_ok, null)
+                    .show()
         }
     }
 
