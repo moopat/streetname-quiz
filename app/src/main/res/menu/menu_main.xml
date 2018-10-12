@@ -3,4 +3,7 @@
     <item
         android:id="@+id/menu_legal"
         android:title="@string/starter_btn_legal"/>
+    <item
+        android:id="@+id/menu_feedback"
+        android:title="@string/all_feedback"/>
 </menu>

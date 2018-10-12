@@ -13,4 +13,9 @@
     <string name="starter_policy">Akzeptiere unsere Datenschutzbestimmungen um zu beginnen.</string>
     <string name="starter_btn_accept">Akzeptieren und beginnen</string>
     <string name="starter_btn_privacy_legal">Datenschutz und Rechtliches</string>
+    <string name="all_feedback">Feedback</string>
+    <string name="feedback_dialog_title">Feedback senden</string>
+    <string name="feedback_dialog_contents">Du wirst in deine E-Mail-App umgeleitet um dein Feedback zu senden.</string>
+    <string name="all_ok">OK</string>
+    <string name="all_cancel">Abbrechen</string>
 </resources>
