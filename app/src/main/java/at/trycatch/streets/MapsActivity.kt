@@ -11,9 +11,9 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.PopupMenu
 import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.viewmodel.MapsViewModel
+import at.trycatch.streets.widget.MapsPopupMenu
 import com.cocoahero.android.geojson.FeatureCollection
 import com.cocoahero.android.geojson.GeoJSON
 import com.cocoahero.android.geojson.LineString
@@ -133,9 +133,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         btnMore.setOnClickListener {
-            val menu = PopupMenu(this, it)
-            menu.inflate(R.menu.menu_main)
-            menu.show()
+            MapsPopupMenu(this, it).show()
         }
     }
 
