@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.location.Location
 import android.util.Log
 import at.trycatch.streets.R
+import at.trycatch.streets.data.Settings
 import com.cocoahero.android.geojson.Feature
 import com.cocoahero.android.geojson.FeatureCollection
 import com.cocoahero.android.geojson.LineString
@@ -28,6 +29,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         const val STATE_SURRENDERED = 2
     }
 
+    val points = MutableLiveData<Long>()
     val currentGameState = MutableLiveData<Int>()
     val streetLines = MutableLiveData<MutableList<LineString>>()
     val currentObjective = MutableLiveData<String>()
@@ -38,12 +40,16 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     var solved = false
     val streetNames = MutableLiveData<List<String>>()
 
+    private var didGetPointSubtraction = false
+
     private val random = Random()
     private val streetLinesInternal = mutableListOf<LineString>()
     private val streetNamesInternal = mutableListOf<String>()
+    private val settings = Settings(application)
 
     init {
         currentGameState.postValue(STATE_GUESSING)
+        points.postValue(settings.getPoints())
     }
 
     fun initializeStreets() {
@@ -58,6 +64,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startNewRound() {
+        didGetPointSubtraction = false
         currentGameState.postValue(STATE_GUESSING)
         currentObjective.postValue(getRandomStreetName())
         solvable.postValue(false)
@@ -67,10 +74,23 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         solved = false
     }
 
+    fun subtractPoints() {
+        if (didGetPointSubtraction) return
+        settings.subtractPoints(3)
+        didGetPointSubtraction = true
+        points.postValue(settings.getPoints())
+    }
+
+    fun awardPoints() {
+        settings.addPoints(10)
+        points.postValue(settings.getPoints())
+    }
+
     fun solveRound(callback: () -> Unit) {
         // If we haven't already won we need to surrender.
         if (currentGameState.value == STATE_GUESSING) {
             currentGameState.postValue(STATE_SURRENDERED)
+            subtractPoints()
         }
 
         currentlyLoading.postValue(true)
@@ -146,8 +166,11 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         Log.d("MapsViewModel", "Selected " + selectedFeature!!.properties.getString("name") + ". Should have ${currentObjective.value}")
         solved = selectedFeature!!.properties.getString("name").normalize() == currentObjective.value?.normalize()
         if (solved) {
+            awardPoints()
             currentGameState.postValue(STATE_WON)
             solvable.postValue(false)
+        } else {
+            subtractPoints()
         }
         return solved
     }
@@ -164,7 +187,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         location.distanceTo(otherLocation).toInt()
     }.min()!!
 
-    fun String.normalize(): String {
+    private fun String.normalize(): String {
         return this.toLowerCase()
                 .replace("st.", "sankt")
                 .replace("prof.", "professor")

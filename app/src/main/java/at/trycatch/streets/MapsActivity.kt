@@ -116,6 +116,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (it == true) confirm.show() else confirm.hide()
         })
 
+        model.points.observe(this, Observer {
+            tvPoints.text = it?.toString()
+        })
+
         confirm.setOnClickListener {
             FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SOLVED, null)
             if (model.solve()) {
@@ -135,6 +139,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         btnNext.setOnClickListener {
             if (mayClickMap) {
+                model.subtractPoints()
                 FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SKIPPED, null)
             }
             model.startNewRound()
@@ -231,4 +236,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
+
 }

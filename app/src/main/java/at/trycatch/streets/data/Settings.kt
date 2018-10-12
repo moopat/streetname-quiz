@@ -9,10 +9,22 @@ import org.jetbrains.anko.defaultSharedPreferences
  */
 class Settings(context: Context) {
 
-    private val preferences = context.defaultSharedPreferences
+    val preferences = context.defaultSharedPreferences
 
     fun hasAcceptedLatestTerms() = preferences.getInt("terms", 0) >= LegalActivity.VERSION
 
     fun acceptTerms() = preferences.edit().putInt("terms", LegalActivity.VERSION).apply()
+
+    fun getPoints(): Long {
+        return preferences.getLong("pts", 0)
+    }
+
+    fun addPoints(amount: Long) {
+        preferences.edit().putLong("pts", getPoints() + amount).apply()
+    }
+
+    fun subtractPoints(amount: Long) {
+        preferences.edit().putLong("pts", Math.max(-100, getPoints() - amount)).apply()
+    }
 
 }
