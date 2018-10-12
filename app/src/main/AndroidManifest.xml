@@ -30,7 +30,9 @@
         <activity
             android:name=".activity.StarterActivity"
             android:theme="@style/AppTheme.Toolbarless"/>
-        <activity android:name=".activity.LegalActivity">
+        <activity
+            android:name=".activity.LegalActivity"
+            android:label="@string/starter_btn_privacy_legal">
         </activity>
     </application>
 

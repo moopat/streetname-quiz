@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import at.trycatch.streets.activity.StarterActivity
+import at.trycatch.streets.data.Settings
 import at.trycatch.streets.viewmodel.MapsViewModel
 import at.trycatch.streets.widget.MapsPopupMenu
 import com.cocoahero.android.geojson.FeatureCollection
@@ -31,6 +32,10 @@ import java.io.IOException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    companion object {
+        const val RC_TERMS = 101
+    }
+
     private lateinit var model: MapsViewModel
     private lateinit var mMap: GoogleMap
     private val handler = Handler()
@@ -44,7 +49,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        startActivity(Intent(this, StarterActivity::class.java))
+        if (!Settings(this).hasAcceptedLatestTerms()) {
+            startActivityForResult(Intent(this, StarterActivity::class.java), RC_TERMS)
+        }
 
         model = ViewModelProviders.of(this).get(MapsViewModel::class.java)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -207,4 +214,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .addAll(positions.asSequence().map { LatLng(it.latitude, it.longitude) }.toList())
             .width(8f)
             .color(Color.WHITE))
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == RC_TERMS && resultCode != RESULT_OK) {
+            finish()
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 }
