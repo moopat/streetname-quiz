@@ -25,6 +25,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONException
 import java.io.IOException
@@ -116,12 +117,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         confirm.setOnClickListener {
+            FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SOLVED, null)
             if (model.solve()) {
+                FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.ANSWERED_CORRECTLY, null)
                 rlSuccess.visibility = View.VISIBLE
                 YoYo.with(Techniques.StandUp).duration(500).playOn(rlSuccess)
                 scheduleToHideNotifications()
                 zoomToCurrentSelection()
             } else {
+                FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.ANSWERED_WRONGLY, null)
                 rlError.visibility = View.VISIBLE
                 tvErrorDetail.text = getString(R.string.solution_incorrect_detail, model.getSelectedStreetName())
                 YoYo.with(Techniques.StandUp).duration(500).playOn(rlError)
@@ -130,10 +134,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         btnNext.setOnClickListener {
+            if (mayClickMap) {
+                FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SKIPPED, null)
+            }
             model.startNewRound()
         }
 
         btnSolution.setOnClickListener {
+            FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SOLUTION, null)
             model.solveRound {
                 zoomToCurrentSelection()
             }
@@ -217,6 +225,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_TERMS && resultCode != RESULT_OK) {
+            FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.TERMS_DECLINED, null)
             finish()
             return
         }
