@@ -158,7 +158,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz)) as FeatureCollection
 
             googleMap.setOnMapClickListener { latLng ->
-                if (!mayClickMap) return@setOnMapClickListener
+                if (!mayClickMap) {
+                    startBounceAnimation(0)
+                    return@setOnMapClickListener
+                }
                 hideNotificationsNow()
                 model.makeSelectionByCoordinates(latLng)
             }
@@ -174,8 +177,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun startBounceAnimation() {
+        startBounceAnimation(2000)
+    }
+
+    private fun startBounceAnimation(delay: Long) {
         stopBounceAnimation()
-        bounceAnimation = YoYo.with(Techniques.Bounce).delay(2000).playOn(btnNext)
+        bounceAnimation = YoYo.with(Techniques.Bounce).delay(delay).playOn(btnNext)
     }
 
     private fun stopBounceAnimation() {
