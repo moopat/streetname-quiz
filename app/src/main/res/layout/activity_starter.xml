@@ -48,32 +48,13 @@
             android:layout_marginBottom="18dp"
             android:text="@string/starter_policy"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnLegal"
+            style="@style/StarterButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="18dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                style="@style/StarterButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/starter_btn_privacy"/>
-
-            <Button
-                style="@style/StarterButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/starter_btn_licenses"/>
-
-            <Button
-                style="@style/StarterButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/starter_btn_legal"/>
-
-        </LinearLayout>
+            android:text="@string/starter_btn_privacy_legal"/>
 
         <Button
             android:id="@+id/btnStart"

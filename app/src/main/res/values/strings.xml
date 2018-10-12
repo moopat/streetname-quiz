@@ -13,4 +13,5 @@
     <string name="starter_policy">Accept our privacy policy to start.</string>
     <string name="starter_btn_accept">Accept and start</string>
     <string name="starter_beta">This is a public beta version. Please report any issues that you come across (through the email in the Store). Expect the app to change.</string>
+    <string name="starter_btn_privacy_legal">Privacy and Legal</string>
 </resources>

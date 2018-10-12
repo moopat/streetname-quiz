@@ -13,4 +13,5 @@
     <string name="starter_policy">Akzeptiere unsere Datenschutzbestimmungen um zu beginnen.</string>
     <string name="starter_btn_accept">Akzeptieren und beginnen</string>
     <string name="starter_beta">Das eine möglicherweise instabile öffentliche Beta-Version die sich im Laufe der Zeit ändern wird.</string>
+    <string name="starter_btn_privacy_legal">Datenschutz und Rechtliches</string>
 </resources>
