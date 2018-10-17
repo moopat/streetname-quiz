@@ -3,17 +3,16 @@ package at.trycatch.streets
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.data.Settings
+import at.trycatch.streets.lifecycle.MapboxLifecycleObserver
 import at.trycatch.streets.viewmodel.MapsViewModel
 import at.trycatch.streets.widget.MapsPopupMenu
 import com.cocoahero.android.geojson.FeatureCollection
@@ -21,12 +20,15 @@ import com.cocoahero.android.geojson.GeoJSON
 import com.cocoahero.android.geojson.LineString
 import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.Polyline
+import com.mapbox.mapboxsdk.annotations.PolylineOptions
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONException
 import java.io.IOException
@@ -39,13 +41,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private lateinit var model: MapsViewModel
-    private lateinit var mMap: GoogleMap
+    private var map: MapboxMap? = null
     private val handler = Handler()
     private val lines = mutableListOf<Polyline>()
     private var bounceAnimation: YoYo.YoYoString? = null
 
     // Updated by changes in the game state. Ad-hoc evaluation.
     private var mayClickMap = true
+    private lateinit var mapComponent: MapboxLifecycleObserver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,11 +58,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(Intent(this, StarterActivity::class.java), RC_TERMS)
         }
 
+        Mapbox.getInstance(this, "pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ")
+        mapComponent = MapboxLifecycleObserver(mapView, savedInstanceState)
+        lifecycle.addObserver(mapComponent)
+        mapView.getMapAsync(this)
+
         model = ViewModelProviders.of(this).get(MapsViewModel::class.java)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
 
         model.streetNames.observe(this, Observer {
             if (it != null) model.startNewRound()
@@ -109,7 +113,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             lines.forEach { it.remove() }
             lines.clear()
             lineStrings?.forEach {
-                lines.add(it.toPolyline(mMap))
+                lines.add(it.toPolyline(map!!))
             }
         })
 
@@ -170,9 +174,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapComponent.handleLowMemory()
+    }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        mapComponent.handleSaveInstanceState(outState)
+    }
+
+    override fun onMapReady(mapboxMap: MapboxMap?) {
+        if (mapboxMap == null) return
+
+        map = mapboxMap
+
+        /*
         try {
             val success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map))
             if (!success) {
@@ -181,17 +198,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         } catch (e: Resources.NotFoundException) {
             Log.e("MapsActivity", "Can't find style. Error: ", e)
         }
+        */
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(47.0707, 15.4395), 11f))
+        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(47.0707, 15.4395), 11.0))
 
         try {
 
             model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz)) as FeatureCollection
 
-            googleMap.setOnMapClickListener { latLng ->
+            map!!.addOnMapClickListener { latLng ->
                 if (!mayClickMap) {
                     startBounceAnimation(0)
-                    return@setOnMapClickListener
+                    return@addOnMapClickListener
                 }
                 hideNotificationsNow()
                 model.makeSelectionByCoordinates(latLng)
@@ -204,7 +222,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-
     }
 
     private fun startBounceAnimation() {
@@ -233,10 +250,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun zoomToCurrentSelection() {
         val builder = LatLngBounds.Builder()
         lines.flatMap { it.points }.forEach { builder.include(it) }
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 250))
+        map?.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 250))
     }
 
-    fun LineString.toPolyline(googleMap: GoogleMap) = googleMap.addPolyline(PolylineOptions()
+    fun LineString.toPolyline(map: MapboxMap) = map.addPolyline(PolylineOptions()
             .addAll(positions.asSequence().map { LatLng(it.latitude, it.longitude) }.toList())
             .width(8f)
             .color(Color.WHITE))

@@ -11,7 +11,7 @@ import com.cocoahero.android.geojson.Feature
 import com.cocoahero.android.geojson.FeatureCollection
 import com.cocoahero.android.geojson.LineString
 import com.cocoahero.android.geojson.Position
-import com.google.android.gms.maps.model.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLng
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.BufferedReader
