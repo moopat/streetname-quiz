@@ -200,6 +200,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         */
 
+        map!!.setStyleUrl("mapbox://styles/moopat/cjndg38970vq62rnu542m5fhf")
+        map!!.uiSettings.isLogoEnabled = false
+        map!!.uiSettings.isAttributionEnabled = false
+        map!!.uiSettings.isRotateGesturesEnabled = false
+        map!!.uiSettings.isCompassEnabled = false
+
         map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(47.0707, 15.4395), 11.0))
 
         try {
