@@ -23,7 +23,6 @@ import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.PolylineOptions
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
@@ -35,10 +34,9 @@ import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.activity_maps.*
+import org.jetbrains.anko.doAsync
 import org.json.JSONException
 import java.io.IOException
-import java.io.InputStreamReader
-import java.nio.charset.Charset
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -200,24 +198,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         map = mapboxMap
 
-        /*
-        try {
-            val success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map))
-            if (!success) {
-                Log.e("MapsActivity", "Style parsing failed.")
-            }
-        } catch (e: Resources.NotFoundException) {
-            Log.e("MapsActivity", "Can't find style. Error: ", e)
-        }
-        */
-
-        map!!.setStyleUrl("mapbox://styles/moopat/cjndg38970vq62rnu542m5fhf") {
-            //map!!.setStyle(getRawAsString(R.raw.mapstyle)) {
+        map!!.setStyleUrl("mapbox://styles/moopat/cjndg38970vq62rnu542m5fhf") { _ ->
             val featureCollection = com.mapbox.geojson.FeatureCollection.fromFeatures(mutableListOf())
 
             selectionSource = GeoJsonSource("selection-source", featureCollection)
-            //selectionSource = GeoJsonSource("selection-source", com.mapbox.geojson.FeatureCollection.fromJson(loadJsonFromAsset("graz.json")))
-            //selectionSource = RasterSource("selection-source", "mapbox://moopat.cjneaeeqt0b8w2ptclsbc3ny3-9mpux")
             map!!.addSource(selectionSource!!)
 
             selectionLayer = LineLayer("selection-layer", "selection-source")
@@ -229,6 +213,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     PropertyFactory.lineColor(Color.parseColor("#ffffff"))
             )
             map!!.addLayer(selectionLayer!!)
+
+            YoYo.with(Techniques.FadeOut).onEnd { rlLoading.visibility = View.GONE }.playOn(rlLoading)
         }
 
         map!!.uiSettings.isLogoEnabled = false
@@ -240,12 +226,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         try {
 
-            model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz)) as FeatureCollection
+            doAsync {
+                model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz)) as FeatureCollection
+            }
 
             map!!.addOnMapClickListener { latLng ->
-                //route.add(Point.fromLngLat(latLng.longitude, latLng.latitude))
-                //selectionSource!!.setGeoJson(com.mapbox.geojson.FeatureCollection.fromFeature(com.mapbox.geojson.Feature.fromGeometry(com.mapbox.geojson.LineString.fromLngLats(route))))
-
                 if (!mayClickMap) {
                     startBounceAnimation(0)
                     return@addOnMapClickListener
@@ -254,27 +239,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 model.makeSelectionByCoordinates(latLng)
             }
 
-            // map!!.addSource(selectionSource)
-
-            /*
-            val featureCollection = com.mapbox.geojson.FeatureCollection.fromFeature(com.mapbox.geojson.Feature.fromGeometry(com.mapbox.geojson.LineString.fromLngLats(route)))
-
-            selectionSource = GeoJsonSource("selection-source", featureCollection)
-            //selectionSource = GeoJsonSource("selection-source", com.mapbox.geojson.FeatureCollection.fromJson(loadJsonFromAsset("graz.json")))
-            //selectionSource = RasterSource("selection-source", "mapbox://moopat.cjneaeeqt0b8w2ptclsbc3ny3-9mpux")
-            map!!.addSource(selectionSource!!)
-
-            selectionLayer = LineLayer("selection-layer", "selection-source")
-            selectionLayer?.setProperties(
-                    PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                    PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
-                    PropertyFactory.lineWidth(5f),
-                    PropertyFactory.lineOpacity(0.5f),
-                    PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
-            )
-            map!!.addLayer(selectionLayer!!)
-            */
-
             model.startNewRound()
 
         } catch (e: IOException) {
@@ -282,15 +246,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-    }
-
-    private fun loadJsonFromAsset(nameOfLocalFile: String): String {
-        val `is` = assets.open(nameOfLocalFile)
-        val size = `is`.available()
-        val buffer = ByteArray(size)
-        `is`.read(buffer)
-        `is`.close()
-        return String(buffer, Charset.forName("UTF-8"))
     }
 
     private fun startBounceAnimation() {
@@ -333,18 +288,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
         map?.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
     }
-
-    private fun getRawAsString(resource: Int): String {
-        val lineReader = InputStreamReader(resources.openRawResource(resource))
-        val text = lineReader.readText()
-        lineReader.close()
-        return text
-    }
-
-    fun LineString.toPolyline(map: MapboxMap) = map.addPolyline(PolylineOptions()
-            .addAll(positions.asSequence().map { LatLng(it.latitude, it.longitude) }.toList())
-            .width(6f)
-            .color(Color.WHITE))
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_TERMS && resultCode != RESULT_OK) {

@@ -7,4 +7,5 @@
     <color name="colorError">#b71c1c</color>
     <color name="white">#ffffff</color>
     <color name="semiWhite">#7affffff</color>
+    <color name="mapBackground">#1d2c4d</color>
 </resources>
