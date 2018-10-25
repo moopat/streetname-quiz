@@ -45,7 +45,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         const val RC_TERMS = 101
     }
 
-    private lateinit var model: MapsViewModel
+    lateinit var model: MapsViewModel
     private var map: MapboxMap? = null
     private val handler = Handler()
     private val lines = mutableListOf<com.cocoahero.android.geojson.Geometry>()
@@ -238,8 +238,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 hideNotificationsNow()
                 model.makeSelectionByCoordinates(latLng)
             }
-
-            model.startNewRound()
 
         } catch (e: IOException) {
             e.printStackTrace()

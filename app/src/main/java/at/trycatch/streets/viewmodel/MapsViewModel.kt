@@ -7,10 +7,7 @@ import android.location.Location
 import android.util.Log
 import at.trycatch.streets.R
 import at.trycatch.streets.data.Settings
-import com.cocoahero.android.geojson.Feature
-import com.cocoahero.android.geojson.FeatureCollection
-import com.cocoahero.android.geojson.LineString
-import com.cocoahero.android.geojson.Position
+import com.cocoahero.android.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -28,6 +25,9 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         const val STATE_WON = 1
         const val STATE_SURRENDERED = 2
     }
+
+    var testMode = false
+    var currentIndex = -1
 
     val points = MutableLiveData<Long>()
     val currentGameState = MutableLiveData<Int>()
@@ -64,9 +64,18 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startNewRound() {
+
+        val streetName: String
+        if (testMode) {
+            currentIndex = if (streetNamesInternal.size > currentIndex + 1) currentIndex + 1 else 0
+            streetName = streetNamesInternal[currentIndex]
+        } else {
+            streetName = getRandomStreetName()!!
+        }
+
         didGetPointSubtraction = false
         currentGameState.postValue(STATE_GUESSING)
-        currentObjective.postValue(getRandomStreetName())
+        currentObjective.postValue(streetName)
         solvable.postValue(false)
         currentlyLoading.postValue(false)
         streetLinesInternal.clear()
@@ -102,10 +111,41 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
         doAsync {
             getFeaturesByName(currentObjective.value!!)
-                    .map { it.geometry as LineString } // TODO: Might not be a LineString!
+                    .asSequence()
+                    .map {
+                        val lineStrings = mutableListOf<LineString>()
+                        when {
+                            it.geometry is LineString -> lineStrings.add(it.geometry as LineString)
+                            it.geometry is MultiPolygon -> {
+                                val poly = it.geometry as MultiPolygon
+                                lineStrings.addAll(poly.toLineStrings())
+                            }
+                        }
+                        lineStrings
+                    }
+                    .toList()
+                    .flatMap { it }
                     .forEach { lineString ->
                         streetLinesInternal.add(lineString)
                     }
+
+            if (streetLinesInternal.isEmpty()) {
+                getFeaturesByName(currentObjective.value!!)
+                        .asSequence()
+                        .filter { it.geometry is MultiPolygon }
+                        .map { it.geometry as MultiPolygon }
+                        .forEach { multiPolygon ->
+                            multiPolygon.polygons
+                                    .flatMap { it.rings }
+                                    .map {
+                                        val lineString = LineString()
+                                        lineString.positions = it.positions
+                                        lineString
+                                    }
+                                    .forEach { streetLinesInternal.add(it) }
+                        }
+            }
+
             streetLines.postValue(streetLinesInternal)
             currentlyLoading.postValue(false)
             uiThread { callback.invoke() }
@@ -127,6 +167,17 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
                 closestElement = it
             }
         }
+
+        featureCollection!!.features.asSequence().filter { it.geometry is MultiPolygon }.forEach { feature ->
+            val geo = feature.geometry as MultiPolygon
+            geo.toLineStrings().forEach {
+                val distance = it.getDistance(latLng)
+                if (distance < shortestDistance) {
+                    shortestDistance = distance
+                    closestElement = feature
+                }
+            }
+        }
         return closestElement!!
     }
 
@@ -139,11 +190,26 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
         doAsync {
             selectedFeature = getClosestFeature(latLng)
+
             getFeaturesByName(selectedFeature!!.properties.getString("name"))
-                    .map { it.geometry as LineString }
+                    .asSequence()
+                    .map {
+                        val lineStrings = mutableListOf<LineString>()
+                        when {
+                            it.geometry is LineString -> lineStrings.add(it.geometry as LineString)
+                            it.geometry is MultiPolygon -> {
+                                val poly = it.geometry as MultiPolygon
+                                lineStrings.addAll(poly.toLineStrings())
+                            }
+                        }
+                        lineStrings
+                    }
+                    .toList()
+                    .flatMap { it }
                     .forEach { lineString ->
                         streetLinesInternal.add(lineString)
                     }
+
             streetLines.postValue(streetLinesInternal)
             currentlyLoading.postValue(false)
             solvable.postValue(true)
@@ -151,10 +217,11 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun getFeaturesByName(name: String): List<Feature> {
+        val normalizedName = name.normalize()
         return featureCollection!!.features
                 .asSequence()
-                .filter { it.properties.optString("name", "hugo") == name }
-                .filter { it.geometry is LineString }
+                .filter { it.properties.getString("skey") == normalizedName }
+                .filter { it.geometry is LineString || it.geometry is MultiPolygon }
                 .toList()
     }
 
@@ -164,7 +231,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun solve(): Boolean {
         Log.d("MapsViewModel", "Selected " + selectedFeature!!.properties.getString("name") + ". Should have ${currentObjective.value}")
-        solved = selectedFeature!!.properties.getString("name").normalize() == currentObjective.value?.normalize()
+        solved = selectedFeature!!.properties.getString("skey") == currentObjective.value?.normalize()
         if (solved) {
             awardPoints()
             currentGameState.postValue(STATE_WON)
@@ -194,6 +261,18 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
                 .replace(".", "")
                 .replace(" ", "")
                 .replace("-", "")
+    }
+
+    private fun MultiPolygon.toLineStrings(): MutableList<LineString> {
+        return polygons
+                .flatMap { it.rings }
+                .asSequence()
+                .map {
+                    val lineString = LineString()
+                    lineString.positions = it.positions
+                    lineString
+                }
+                .toCollection(mutableListOf())
     }
 
 }

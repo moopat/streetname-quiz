@@ -15,7 +15,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,6 +56,21 @@ public class Extractor {
                 .filter(feature -> !(feature.getGeometry() instanceof Point))
                 .filter(feature -> officialNormalizedStreets.contains(getNormalizedStreet((String) feature.getProperties().get("name"))))
                 .collect(Collectors.toList());
+
+        // Set normalized names.
+        eligibleFeatures.forEach(it -> it.setProperty("skey", getNormalizedStreet(it.getProperty("name"))));
+
+        // Remove all but the following properties:
+        final List<String> validProperties = new ArrayList<>();
+        validProperties.add("skey");
+        validProperties.add("name");
+
+        eligibleFeatures.forEach(it -> {
+            final Map<String, Object> properties = new HashMap<>();
+            properties.put("skey", it.getProperty("skey"));
+            properties.put("name", it.getProperty("name"));
+            it.setProperties(properties);
+        });
 
         System.out.println("Found " + eligibleFeatures.size() + " eligible features that will be included in the app.");
 
