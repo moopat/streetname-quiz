@@ -1,15 +1,21 @@
 apply plugin: 'java'
+apply plugin: 'kotlin'
 apply plugin: 'application'
 
-mainClassName = "at.trycatch.extractor.Extractor"
+mainClassName = "at.trycatch.extractor.MainKt"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'de.grundid.opendatalab:geojson-jackson:1.8.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+run {
+    args 'graz'
+}
 
 sourceSets {
     main {
@@ -28,12 +34,30 @@ task generateStreets(dependsOn: 'run') {
 
     doLast {
         copy {
-            from 'graz.json'
+            from 'output/'
             into '../app/src/main/res/raw'
         }
-        copy {
-            from 'grazstreets.txt'
-            into '../app/src/main/res/raw'
-        }
+    }
+}
+buildscript {
+    ext.kotlin_version = '1.3.41'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+repositories {
+    mavenCentral()
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }

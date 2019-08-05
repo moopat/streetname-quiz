@@ -13,6 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <service
+            android:name=".service.ImportService"
+            android:exported="false">
+        </service>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -39,7 +43,6 @@
         <meta-data
             android:name="google_analytics_adid_collection_enabled"
             android:value="false"/>
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key"/>
