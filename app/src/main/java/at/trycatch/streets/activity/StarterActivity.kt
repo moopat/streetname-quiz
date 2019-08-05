@@ -2,7 +2,7 @@ package at.trycatch.streets.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import at.trycatch.streets.Constants
 import at.trycatch.streets.R
 import at.trycatch.streets.data.Settings

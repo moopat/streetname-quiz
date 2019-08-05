@@ -3,7 +3,7 @@ package at.trycatch.streets.widget
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.widget.PopupMenu
 import at.trycatch.streets.R

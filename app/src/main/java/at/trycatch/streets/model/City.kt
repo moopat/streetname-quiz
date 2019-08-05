@@ -1,8 +1,8 @@
 package at.trycatch.streets.model
 
-import android.arch.persistence.room.Embedded
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 /**
  * @author Markus Deutsch <markus@moop.at>
@@ -15,6 +15,6 @@ class City {
     var displayName: String = ""
     var version: Int = 0
     @Embedded
-    var geoBounds = GeoBounds()
+    var geoBounds: GeoBounds? = null
 
 }

@@ -1,8 +1,8 @@
 package at.trycatch.streets.viewmodel
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import android.location.Location
 import android.util.Log
 import at.trycatch.streets.R

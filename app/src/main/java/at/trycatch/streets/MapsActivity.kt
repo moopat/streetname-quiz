@@ -1,14 +1,14 @@
 package at.trycatch.streets
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.data.Settings
@@ -106,7 +106,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        model.currentObjective.observe(this, android.arch.lifecycle.Observer {
+        model.currentObjective.observe(this, androidx.lifecycle.Observer {
             // We found a new objective.
             hideNotificationsNow()
             tvStreetName.text = it
