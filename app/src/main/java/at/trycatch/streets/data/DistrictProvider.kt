@@ -1,7 +1,6 @@
 package at.trycatch.streets.data
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import at.trycatch.streets.data.room.AppDatabaseInstance
 import at.trycatch.streets.model.City
@@ -46,7 +45,6 @@ class DistrictProvider(context: Context) {
                 result.add(DistrictWithProgress(it).apply {
                     solvedStreets = db.database.getDistrictDao().getNumberOfSolvedStreets(cityId, it.id)
                     totalStreets = db.database.getDistrictDao().getTotalNumberOfStreets(cityId, it.id)
-                    Log.d("DistrictProvider", "- $this")
                 })
             }
             callback.invoke(result)

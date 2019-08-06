@@ -67,9 +67,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(Intent(this, StarterActivity::class.java), RC_TERMS)
         }
 
-        startActivity(Intent(this, DistrictPickerActivity::class.java))
-
-        // Imort Data
+        // Import Data
         ImportService.startImport(this)
 
         Mapbox.getInstance(this, "pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ")
@@ -183,6 +181,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .setMessage(R.string.dialog_points_message)
                     .setPositiveButton(R.string.all_ok, null)
                     .show()
+        }
+
+        tvTitle.setOnClickListener {
+            startActivity(Intent(this, DistrictPickerActivity::class.java))
         }
     }
 

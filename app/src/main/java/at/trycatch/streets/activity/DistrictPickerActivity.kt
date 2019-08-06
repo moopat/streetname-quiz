@@ -1,6 +1,7 @@
 package at.trycatch.streets.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import at.trycatch.streets.R
@@ -28,10 +29,12 @@ class DistrictPickerActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         provider.getAllDistrictsWithProgress("graz") {
+            Log.d("DistrictPicker", "Got ${it.size} districts.")
             adapter.setDistricts(it)
         }
 
-        cityProvider.getCityWithProgress("graz"){
+        cityProvider.getCityWithProgress("graz") {
+            Log.d("DistrictPicker", "Got city $it")
             adapter.setCity(it)
         }
     }
