@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:label="@string/title_activity_districts"
+            android:name=".activity.DistrictPickerActivity"
+            android:theme="@style/AppTheme.District"/>
+
         <service
             android:name=".service.ImportService"
             android:exported="false">

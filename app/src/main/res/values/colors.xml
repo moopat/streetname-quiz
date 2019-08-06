@@ -8,4 +8,10 @@
     <color name="white">#ffffff</color>
     <color name="semiWhite">#7affffff</color>
     <color name="mapBackground">#1d2c4d</color>
+
+    <color name="mapColorPrimary">#1d2c4d</color>
+    <color name="mapColorPrimaryDark">#15203A</color>
+    <color name="mapColorAccent">@color/colorAccent</color>
+    <color name="mapColorBackground">#24365E</color>
+
 </resources>

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import at.trycatch.streets.activity.DistrictPickerActivity
 import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.data.Settings
 import at.trycatch.streets.lifecycle.MapboxLifecycleObserver
@@ -65,6 +66,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (!Settings(this).hasAcceptedLatestTerms()) {
             startActivityForResult(Intent(this, StarterActivity::class.java), RC_TERMS)
         }
+
+        startActivity(Intent(this, DistrictPickerActivity::class.java))
 
         // Imort Data
         ImportService.startImport(this)

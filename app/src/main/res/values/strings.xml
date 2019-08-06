@@ -19,4 +19,6 @@
     <string name="all_ok">OK</string>
     <string name="all_cancel">Cancel</string>
     <string name="dialog_points_message">You will get 10 points for every right guess, and minus 3 points (per round) if you either skip a street, make a wrong guess, or view the solution.</string>
+    <string name="title_activity_districts">Pick a district</string>
+    <string name="districts_city_title">%s (All)</string>
 </resources>

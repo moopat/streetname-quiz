@@ -19,4 +19,6 @@
     <string name="all_ok">OK</string>
     <string name="all_cancel">Abbrechen</string>
     <string name="dialog_points_message">Für jeden richtigen Tipp erhältst du 10 Punkte. Pro Runde bekommst du -3 Punkte wenn du einen falschen Tipp abgibst, die Straße überspringst oder die Lösung ansiehst.</string>
+    <string name="districts_city_title">%s (Alle)</string>
+    <string name="title_activity_districts">Bezirk wählen</string>
 </resources>

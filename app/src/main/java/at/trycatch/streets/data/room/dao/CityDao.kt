@@ -15,9 +15,12 @@ interface CityDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(city: City)
 
-    @Query("SELECT * FROM city;")
+    @Query("SELECT * FROM city")
     fun getAll(): List<City>
 
-    @Query("DELETE FROM city;")
+    @Query("SELECT * FROM city WHERE id = :cityId")
+    fun findById(cityId: String): City?
+
+    @Query("DELETE FROM city")
     fun deleteAll()
 }

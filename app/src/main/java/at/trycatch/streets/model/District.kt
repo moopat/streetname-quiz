@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
  * @author Markus Deutsch <markus@moop.at>
  */
 @Entity
-class District {
+open class District {
 
     @PrimaryKey
     var id: String = ""
