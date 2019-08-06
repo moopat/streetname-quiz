@@ -1,14 +1,13 @@
 package at.trycatch.extractor
 
-import at.trycatch.extractor.model.District
-import at.trycatch.extractor.model.Street
+import at.trycatch.extractor.model.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.geojson.Feature
 import org.geojson.FeatureCollection
+import org.geojson.MultiPolygon
 import org.geojson.Point
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+import org.tukaani.xz.XZInputStream
+import java.io.*
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -27,6 +26,7 @@ class Extractor(private val cityId: String) {
     }
 
     val outputDir = File("output")
+    val cacheDir = File("build/tmp")
 
     init {
         outputDir.mkdirs()
@@ -42,7 +42,7 @@ class Extractor(private val cityId: String) {
         val officialNormalizedStreets = streets.map { it.key }
         val missingStreets = mutableListOf<String>().apply { addAll(officialNormalizedStreets) }
 
-        // Load geojson
+        // Get street features
         val features = getFeatures()
         val eligibleFeatures = features.features.stream()
                 .filter { feature -> feature.properties.containsKey("name") }
@@ -85,21 +85,38 @@ class Extractor(private val cityId: String) {
         // Write feature collection
         val newFeatureCollection = FeatureCollection()
         newFeatureCollection.addAll(eligibleFeatures)
-        ObjectMapper().writeValue(File(outputDir.path + "/$cityId-geodata.json"), newFeatureCollection)
+        ObjectMapper().writeValue(File(outputDir.path + "/$cityId" + "_geodata.json"), newFeatureCollection)
+
+        // Load bounds
+        val districts = getDistricts()
+        val boundaries = getBoundaryFeatures().filter { it.properties.containsKey("boundary") }
+                .filter { it.properties["name"] != null }
+                .filter { districts.map { dist -> dist.name.getNormalized() }.contains((it.properties["name"] as String).getNormalized()) || it.properties["name"] == "Graz" }
+                .filter { it.properties["boundary"] == "administrative" }
 
         // Find the bounds of Graz
-        val north = "47.116536,15.424495"
-        val south = "47.023936,15.438228"
-        val east = "47.067154,15.488289"
-        val west = "47.06084,15.377052"
+        val city = City(cityId, "Graz")
+        val rawCityBound = boundaries.first { it.properties["name"] == "Graz" }
+        val cityBoundPoly = rawCityBound.geometry as MultiPolygon
+        val cityBounds = GeoBounds.Builder()
+        cityBoundPoly.coordinates.flatten().flatten().map { GeoLocation(it.latitude, it.longitude) }.forEach { cityBounds.include(it) }
+        city.geoBounds = cityBounds.build()
 
         // Indices
 
         // Write the city index document.
-        writeCitiesDocument(north, south, east, west)
+        writeCitiesDocument(city)
+
+        // Enrich districts with bounds.
+        districts.forEach { district ->
+            val rawBound = boundaries.first { district.name.getNormalized() == (it.properties["name"] as String).getNormalized() }
+            val boundPoly = rawBound.geometry as MultiPolygon
+            val bounds = GeoBounds.Builder()
+            boundPoly.coordinates.flatten().flatten().map { GeoLocation(it.latitude, it.longitude) }.forEach { bounds.include(it) }
+            district.geoBounds = bounds.build()
+        }
 
         // Write the district index document.
-        val districts = getDistricts()
         writeDistrictsDocument(districts)
 
         // Write the street index document.
@@ -134,14 +151,37 @@ class Extractor(private val cityId: String) {
         return ObjectMapper().readValue(stream, FeatureCollection::class.java)
     }
 
+    private fun getBoundaryFeatures(): FeatureCollection {
+        val path = unpackFile("$cityId/boundaries.geojson.xz")
+        val stream = FileInputStream(path)
+        return ObjectMapper().readValue(stream, FeatureCollection::class.java)
+    }
+
+    private fun unpackFile(path: String): String {
+        val stream = javaClass.classLoader.getResourceAsStream(path)
+        val bufferedStream = BufferedInputStream(stream!!)
+        val outPath = cacheDir.path + "/unpacked-" + Random().nextInt()
+        val out = FileOutputStream(outPath)
+        val xzIn = XZInputStream(bufferedStream)
+
+        xzIn.copyTo(out)
+
+        out.close()
+        xzIn.close()
+
+        return outPath
+    }
+
     @Throws(IOException::class)
-    private fun writeCitiesDocument(north: String, south: String, east: String, west: String) {
+    private fun writeCitiesDocument(city: City) {
         val builder = StringBuilder()
-        builder.append("graz;").append("Graz;").append("1;")
-                .append(north).append(";")
-                .append(south).append(";")
-                .append(east).append(";")
-                .append(west).append(";")
+        builder.append(VERSION).append(";")
+        builder.append(city.id).append(";")
+        builder.append(city.name).append(";")
+        builder.append(city.geoBounds!!.north).append(";")
+        builder.append(city.geoBounds!!.east).append(";")
+        builder.append(city.geoBounds!!.south).append(";")
+        builder.append(city.geoBounds!!.west).append(";")
 
         val writer = FileWriter(outputDir.path + "/cities.csv")
         writer.write(builder.toString() + "\n")
@@ -157,10 +197,14 @@ class Extractor(private val cityId: String) {
                     .append(it.id).append(";")
                     .append(it.name).append(";")
                     .append(it.sequence).append(";")
+                    .append(it.geoBounds!!.north).append(";")
+                    .append(it.geoBounds!!.east).append(";")
+                    .append(it.geoBounds!!.south).append(";")
+                    .append(it.geoBounds!!.west).append(";")
                     .append("\n")
         }
 
-        val writer = FileWriter(outputDir.path + "/$cityId-districts.csv")
+        val writer = FileWriter(outputDir.path + "/$cityId" + "_districts.csv")
         writer.write(builder.toString())
         writer.close()
     }
@@ -170,7 +214,7 @@ class Extractor(private val cityId: String) {
 
         streets.forEach { street ->
             street.districts.forEach { districtId ->
-                val district = districts.filter { it.originalId == districtId }.first()
+                val district = districts.first { it.originalId == districtId }
 
                 builder.append(VERSION).append(";")
                         .append(street.key).append(";")
@@ -180,7 +224,7 @@ class Extractor(private val cityId: String) {
             }
         }
 
-        val writer = FileWriter(outputDir.path + "/$cityId-streets.csv")
+        val writer = FileWriter(outputDir.path + "/$cityId" + "_streets.csv")
         writer.write(builder.toString())
         writer.close()
     }

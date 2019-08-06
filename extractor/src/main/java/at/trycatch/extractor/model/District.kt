@@ -9,6 +9,7 @@ class District(val cityId: String, val originalId: Int, val name: String) {
 
     val id = "$cityId-" + name.getNormalized()
     var sequence: Int = 0
+    var geoBounds: GeoBounds? = null
 
     companion object {
 

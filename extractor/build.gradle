@@ -4,9 +4,12 @@ apply plugin: 'application'
 
 mainClassName = "at.trycatch.extractor.MainKt"
 
+//  groupId = org.tukaani, artifactId = xz
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'de.grundid.opendatalab:geojson-jackson:1.8.1'
+    implementation 'org.tukaani:xz:1.8'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 

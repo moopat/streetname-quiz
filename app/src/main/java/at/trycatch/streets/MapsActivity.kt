@@ -1,18 +1,19 @@
 package at.trycatch.streets
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import androidx.core.content.ContextCompat
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import android.view.View
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.data.Settings
 import at.trycatch.streets.lifecycle.MapboxLifecycleObserver
+import at.trycatch.streets.service.ImportService
 import at.trycatch.streets.viewmodel.MapsViewModel
 import at.trycatch.streets.widget.MapsPopupMenu
 import com.cocoahero.android.geojson.Feature
@@ -65,6 +66,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(Intent(this, StarterActivity::class.java), RC_TERMS)
         }
 
+        // Imort Data
+        ImportService.startImport(this)
+
         Mapbox.getInstance(this, "pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ")
         mapComponent = MapboxLifecycleObserver(mapView, savedInstanceState)
         lifecycle.addObserver(mapComponent)
@@ -72,11 +76,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         model = ViewModelProviders.of(this).get(MapsViewModel::class.java)
 
-        model.streetNames.observe(this, Observer {
-            if (it != null) model.startNewRound()
-        })
-
-        model.initializeStreets()
+        model.startNewRound() // TODO: Wait until import has finished
 
         model.currentGameState.observe(this, Observer {
             if (it == null) return@Observer
@@ -106,10 +106,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        model.currentObjective.observe(this, androidx.lifecycle.Observer {
+        model.currentObjective.observe(this, Observer {
             // We found a new objective.
             hideNotificationsNow()
-            tvStreetName.text = it
+            tvStreetName.text = it.displayName
         })
 
         model.currentlyLoading.observe(this, Observer {
@@ -227,7 +227,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         try {
 
             doAsync {
-                model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz)) as FeatureCollection
+                model.featureCollection = GeoJSON.parse(resources.openRawResource(R.raw.graz_geodata)) as FeatureCollection
             }
 
             map!!.addOnMapClickListener { latLng ->

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "da97b5f5d34a9580681afde7399b6ea0",
+    "identityHash": "3f2878e49fbe9dd74f3259594f0b80c7",
     "entities": [
       {
         "tableName": "City",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `displayName` TEXT NOT NULL, `version` INTEGER NOT NULL, `longitude` REAL, `latitude` REAL, `longitude` REAL, `latitude` REAL, `longitude` REAL, `latitude` REAL, `longitude` REAL, `latitude` REAL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `displayName` TEXT NOT NULL, `version` INTEGER NOT NULL, `north_longitude` REAL, `north_latitude` REAL, `south_longitude` REAL, `south_latitude` REAL, `east_longitude` REAL, `east_latitude` REAL, `west_longitude` REAL, `west_latitude` REAL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -28,49 +28,49 @@
           },
           {
             "fieldPath": "geoBounds.north.longitude",
-            "columnName": "longitude",
+            "columnName": "north_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.north.latitude",
-            "columnName": "latitude",
+            "columnName": "north_latitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.south.longitude",
-            "columnName": "longitude",
+            "columnName": "south_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.south.latitude",
-            "columnName": "latitude",
+            "columnName": "south_latitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.east.longitude",
-            "columnName": "longitude",
+            "columnName": "east_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.east.latitude",
-            "columnName": "latitude",
+            "columnName": "east_latitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.west.longitude",
-            "columnName": "longitude",
+            "columnName": "west_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.west.latitude",
-            "columnName": "latitude",
+            "columnName": "west_latitude",
             "affinity": "REAL",
             "notNull": false
           }
@@ -86,7 +86,7 @@
       },
       {
         "tableName": "District",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `cityId` TEXT NOT NULL, `sequence` INTEGER NOT NULL, `displayName` TEXT NOT NULL, `version` INTEGER NOT NULL, `longitude` REAL, `latitude` REAL, `longitude` REAL, `latitude` REAL, `longitude` REAL, `latitude` REAL, `longitude` REAL, `latitude` REAL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `cityId` TEXT NOT NULL, `sequence` INTEGER NOT NULL, `displayName` TEXT NOT NULL, `version` INTEGER NOT NULL, `north_longitude` REAL, `north_latitude` REAL, `south_longitude` REAL, `south_latitude` REAL, `east_longitude` REAL, `east_latitude` REAL, `west_longitude` REAL, `west_latitude` REAL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -120,49 +120,49 @@
           },
           {
             "fieldPath": "geoBounds.north.longitude",
-            "columnName": "longitude",
+            "columnName": "north_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.north.latitude",
-            "columnName": "latitude",
+            "columnName": "north_latitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.south.longitude",
-            "columnName": "longitude",
+            "columnName": "south_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.south.latitude",
-            "columnName": "latitude",
+            "columnName": "south_latitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.east.longitude",
-            "columnName": "longitude",
+            "columnName": "east_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.east.latitude",
-            "columnName": "latitude",
+            "columnName": "east_latitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.west.longitude",
-            "columnName": "longitude",
+            "columnName": "west_longitude",
             "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "geoBounds.west.latitude",
-            "columnName": "latitude",
+            "columnName": "west_latitude",
             "affinity": "REAL",
             "notNull": false
           }
@@ -276,7 +276,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da97b5f5d34a9580681afde7399b6ea0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f2878e49fbe9dd74f3259594f0b80c7')"
     ]
   }
 }

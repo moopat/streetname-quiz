@@ -20,6 +20,20 @@ class GeoLocation {
             return geoLocation
         }
 
+        @JvmStatic
+        fun fromString(line: String): GeoLocation {
+            val split = line.split(",")
+            return GeoLocation().apply {
+                latitude = split[0].toDouble()
+                longitude = split[1].toDouble()
+            }
+        }
+
     }
+
+    override fun toString(): String {
+        return "GeoLocation(longitude=$longitude, latitude=$latitude)"
+    }
+
 
 }

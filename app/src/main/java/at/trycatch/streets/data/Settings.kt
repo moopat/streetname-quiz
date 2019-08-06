@@ -27,4 +27,12 @@ class Settings(context: Context) {
         preferences.edit().putLong("pts", Math.max(-100, getPoints() - amount)).apply()
     }
 
+    fun getInstalledVersion(cityId: String): Int {
+        return preferences.getInt("version-$cityId", 0)
+    }
+
+    fun setInstalledVersion(cityId: String, version: Int) {
+        preferences.edit().putInt("version-$cityId", version).apply()
+    }
+
 }

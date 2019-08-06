@@ -1,19 +1,17 @@
 package at.trycatch.streets.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import android.location.Location
 import android.util.Log
-import at.trycatch.streets.R
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import at.trycatch.streets.data.GameServiceLayer
 import at.trycatch.streets.data.Settings
+import at.trycatch.streets.model.Street
 import com.cocoahero.android.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.util.*
 
 /**
  * @author Markus Deutsch <markus@moop.at>
@@ -26,25 +24,27 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         const val STATE_SURRENDERED = 2
     }
 
+    val cityId = "graz"
+    val districtId: String? = null
+
+    val gameService: GameServiceLayer = GameServiceLayer(application)
+
     var testMode = false
     var currentIndex = -1
 
     val points = MutableLiveData<Long>()
     val currentGameState = MutableLiveData<Int>()
     val streetLines = MutableLiveData<MutableList<LineString>>()
-    val currentObjective = MutableLiveData<String>()
+    val currentObjective = MutableLiveData<Street>()
     val currentlyLoading = MutableLiveData<Boolean>()
     val solvable = MutableLiveData<Boolean>()
     var featureCollection: FeatureCollection? = null
     var selectedFeature: Feature? = null
     var solved = false
-    val streetNames = MutableLiveData<List<String>>()
 
     private var didGetPointSubtraction = false
 
-    private val random = Random()
     private val streetLinesInternal = mutableListOf<LineString>()
-    private val streetNamesInternal = mutableListOf<String>()
     private val settings = Settings(application)
 
     init {
@@ -52,35 +52,31 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         points.postValue(settings.getPoints())
     }
 
-    fun initializeStreets() {
-        doAsync {
-            val resource = getApplication<Application>().resources.openRawResource(R.raw.grazstreets)
-            val bufferedReader = BufferedReader(InputStreamReader(resource))
-            while (bufferedReader.ready()) {
-                streetNamesInternal.add(bufferedReader.readLine())
+    fun startNewRound() {
+        if (testMode) {
+            currentIndex++
+            gameService.getSequentialStreet(cityId, districtId, currentIndex) {
+                handleNewRound(it)
             }
-            streetNames.postValue(streetNamesInternal)
+        } else {
+            gameService.getRandomStreet(cityId, districtId) {
+                handleNewRound(it)
+            }
         }
+
     }
 
-    fun startNewRound() {
-
-        val streetName: String
-        if (testMode) {
-            currentIndex = if (streetNamesInternal.size > currentIndex + 1) currentIndex + 1 else 0
-            streetName = streetNamesInternal[currentIndex]
-        } else {
-            streetName = getRandomStreetName()!!
+    private fun handleNewRound(street: Street?) {
+        street?.let {
+            didGetPointSubtraction = false
+            currentGameState.postValue(STATE_GUESSING)
+            currentObjective.postValue(it)
+            solvable.postValue(false)
+            currentlyLoading.postValue(false)
+            streetLinesInternal.clear()
+            streetLines.postValue(streetLinesInternal)
+            solved = false
         }
-
-        didGetPointSubtraction = false
-        currentGameState.postValue(STATE_GUESSING)
-        currentObjective.postValue(streetName)
-        solvable.postValue(false)
-        currentlyLoading.postValue(false)
-        streetLinesInternal.clear()
-        streetLines.postValue(streetLinesInternal)
-        solved = false
     }
 
     fun subtractPoints() {
@@ -110,7 +106,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         streetLines.postValue(streetLinesInternal)
 
         doAsync {
-            getFeaturesByName(currentObjective.value!!)
+            getFeaturesByName(currentObjective.value!!.displayName)
                     .asSequence()
                     .map {
                         val lineStrings = mutableListOf<LineString>()
@@ -130,7 +126,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
                     }
 
             if (streetLinesInternal.isEmpty()) {
-                getFeaturesByName(currentObjective.value!!)
+                getFeaturesByName(currentObjective.value!!.displayName)
                         .asSequence()
                         .filter { it.geometry is MultiPolygon }
                         .map { it.geometry as MultiPolygon }
@@ -150,10 +146,6 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
             currentlyLoading.postValue(false)
             uiThread { callback.invoke() }
         }
-    }
-
-    private fun getRandomStreetName(): String? {
-        return streetNamesInternal.shuffled(random).firstOrNull()
     }
 
     private fun getClosestFeature(latLng: LatLng): Feature {
@@ -231,7 +223,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun solve(): Boolean {
         Log.d("MapsViewModel", "Selected " + selectedFeature!!.properties.getString("name") + ". Should have ${currentObjective.value}")
-        solved = selectedFeature!!.properties.getString("skey") == currentObjective.value?.normalize()
+        solved = selectedFeature!!.properties.getString("skey") == currentObjective.value?.id
         if (solved) {
             awardPoints()
             currentGameState.postValue(STATE_WON)
