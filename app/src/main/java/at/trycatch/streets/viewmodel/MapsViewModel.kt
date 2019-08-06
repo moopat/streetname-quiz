@@ -75,7 +75,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setDistrictId(districtId: String?) {
-        if (districtId != this.districtId) {
+        if (districtId != this.districtId || currentObjective.value == null) {
             this.districtId = districtId
             startNewRound()
         }

@@ -4,5 +4,6 @@
     <dimen name="text_large">20sp</dimen>
     <dimen name="text_huge">28sp</dimen>
     <dimen name="padding_large">28sp</dimen>
+    <dimen name="padding_maps">42sp</dimen>
     <dimen name="inset_top">28sp</dimen>
 </resources>

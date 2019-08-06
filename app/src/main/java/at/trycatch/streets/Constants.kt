@@ -23,4 +23,14 @@ class Constants {
 
     }
 
+    class Broadcasts {
+
+        companion object {
+
+            const val ACTION_UPDATE_DONE = "at.trycatch.streets.ACTION_UPDATE_DONE"
+
+        }
+
+    }
+
 }

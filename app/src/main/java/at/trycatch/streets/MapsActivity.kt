@@ -1,6 +1,9 @@
 package at.trycatch.streets
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -58,6 +61,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     // Updated by changes in the game state. Ad-hoc evaluation.
     private var mayClickMap = true
     private lateinit var mapComponent: MapboxLifecycleObserver
+
+    private var receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            model.startNewRound()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -190,11 +199,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         tvTitle.setOnClickListener {
             startActivity(Intent(this, DistrictPickerActivity::class.java))
         }
+
+        registerReceiver(receiver, IntentFilter(Constants.Broadcasts.ACTION_UPDATE_DONE))
     }
 
     override fun onResume() {
         super.onResume()
         model.setDistrictId(Settings(this).getDistrict())
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            unregisterReceiver(receiver)
+        } catch (e: Exception) {
+            // May happen sometimes
+        }
     }
 
     override fun onLowMemory() {

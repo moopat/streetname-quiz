@@ -4,6 +4,7 @@ import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import at.trycatch.streets.Constants
 import at.trycatch.streets.R
 import at.trycatch.streets.data.CityProvider
 import at.trycatch.streets.data.DistrictProvider
@@ -84,6 +85,8 @@ class ImportService : IntentService("ImportService") {
 
         // Remove flagged streets
         streetProvider.removeFlaggedStreets(city)
+
+        sendBroadcast(Intent(Constants.Broadcasts.ACTION_UPDATE_DONE))
     }
 
     private fun getStreetCsvLines(): List<StreetCsvLine> {
