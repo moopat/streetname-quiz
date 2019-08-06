@@ -12,7 +12,7 @@ import at.trycatch.streets.model.DistrictWithProgress
 /**
  * @author Markus Deutsch <markus@moop.at>
  */
-class DistrictAdapter : RecyclerView.Adapter<DistrictViewHolder>() {
+class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : RecyclerView.Adapter<DistrictViewHolder>() {
 
     private val data = mutableListOf<Any>()
 
@@ -61,7 +61,7 @@ class DistrictAdapter : RecyclerView.Adapter<DistrictViewHolder>() {
         holder.progress.progress = city.solvedStreets
         holder.progress.max = city.totalStreets
 
-        holder.itemView.setOnClickListener { }
+        holder.itemView.setOnClickListener { callback.invoke(null) }
     }
 
     private fun bindDistrict(holder: DistrictViewHolder, district: DistrictWithProgress) {
@@ -71,7 +71,7 @@ class DistrictAdapter : RecyclerView.Adapter<DistrictViewHolder>() {
         holder.progress.progress = district.solvedStreets
         holder.progress.max = district.totalStreets
 
-        holder.itemView.setOnClickListener { }
+        holder.itemView.setOnClickListener { callback.invoke(district.district.id) }
     }
 
 }

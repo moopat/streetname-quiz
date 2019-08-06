@@ -12,6 +12,7 @@ import com.cocoahero.android.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import java.util.*
 
 /**
  * @author Markus Deutsch <markus@moop.at>
@@ -25,7 +26,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val cityId = "graz"
-    val districtId: String? = null
+    private var districtId: String? = null
 
     val gameService: GameServiceLayer = GameServiceLayer(application)
 
@@ -50,6 +51,14 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     init {
         currentGameState.postValue(STATE_GUESSING)
         points.postValue(settings.getPoints())
+        districtId = settings.getDistrict()
+    }
+
+    fun setDistrictId(districtId: String?) {
+        if (districtId != this.districtId) {
+            this.districtId = districtId
+            startNewRound()
+        }
     }
 
     fun startNewRound() {
@@ -225,13 +234,31 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         Log.d("MapsViewModel", "Selected " + selectedFeature!!.properties.getString("name") + ". Should have ${currentObjective.value}")
         solved = selectedFeature!!.properties.getString("skey") == currentObjective.value?.id
         if (solved) {
+            updateCurrentStreet(true)
             awardPoints()
             currentGameState.postValue(STATE_WON)
             solvable.postValue(false)
         } else {
             subtractPoints()
+            updateCurrentStreet(false)
         }
         return solved
+    }
+
+    private fun updateCurrentStreet(won: Boolean) {
+        currentObjective.value?.let {
+            if (won) {
+                it.consecutiveCorrectGuesses++
+                it.totalCorrectGuesses++
+            } else {
+                it.consecutiveCorrectGuesses = 0
+            }
+
+            it.lastGuessedOn = Date()
+            it.totalGuesses++
+
+            gameService.updateStreet(it)
+        }
     }
 
     fun LineString.getDistance(position: Position) = getDistance(LatLng(position.latitude, position.longitude))

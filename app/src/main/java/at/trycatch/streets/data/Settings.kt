@@ -35,4 +35,10 @@ class Settings(context: Context) {
         preferences.edit().putInt("version-$cityId", version).apply()
     }
 
+    fun setDistrict(districtId: String?) {
+        preferences.edit().putString("district", districtId).apply()
+    }
+
+    fun getDistrict(): String? = preferences.getString("district", null)
+
 }

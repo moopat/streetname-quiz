@@ -23,4 +23,10 @@ class GameServiceLayer(context: Context) {
         }
     }
 
+    fun updateStreet(street: Street) {
+        doAsync {
+            streetProvider.updateStreet(street)
+        }
+    }
+
 }

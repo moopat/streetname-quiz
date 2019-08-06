@@ -1,7 +1,6 @@
 package at.trycatch.streets.data
 
 import android.content.Context
-import android.util.Log
 import at.trycatch.streets.data.room.AppDatabaseInstance
 import at.trycatch.streets.model.City
 import at.trycatch.streets.model.Street
@@ -22,6 +21,10 @@ class StreetProvider(private val context: Context) {
 
     fun removeFlaggedStreets(city: City) {
         db.database.getStreetDao().deleteFlagged(city.id)
+    }
+
+    fun updateStreet(street: Street) {
+        db.database.getStreetDao().insert(street)
     }
 
     fun insertOrUpdateStreet(city: City, line: StreetCsvLine) {

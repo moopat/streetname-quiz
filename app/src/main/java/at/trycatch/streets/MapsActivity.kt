@@ -188,6 +188,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        model.setDistrictId(Settings(this).getDistrict())
+    }
+
     override fun onLowMemory() {
         super.onLowMemory()
         mapComponent.handleLowMemory()

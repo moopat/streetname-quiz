@@ -8,14 +8,19 @@ import at.trycatch.streets.R
 import at.trycatch.streets.adapter.DistrictAdapter
 import at.trycatch.streets.data.CityProvider
 import at.trycatch.streets.data.DistrictProvider
+import at.trycatch.streets.data.Settings
 import kotlinx.android.synthetic.main.activity_district_picker.*
 
 class DistrictPickerActivity : AppCompatActivity() {
 
-    private val adapter = DistrictAdapter()
+    private val adapter = DistrictAdapter {
+        settings.setDistrict(it)
+        finish()
+    }
 
     private lateinit var provider: DistrictProvider
     private lateinit var cityProvider: CityProvider
+    private lateinit var settings: Settings
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +30,7 @@ class DistrictPickerActivity : AppCompatActivity() {
 
         provider = DistrictProvider(this)
         cityProvider = CityProvider(this)
+        settings = Settings(this)
 
         recyclerView.adapter = adapter
 

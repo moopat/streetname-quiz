@@ -21,13 +21,13 @@ interface StreetDao {
     @Query("SELECT * FROM street WHERE cityId = :cityId ORDER BY id ASC LIMIT 1 OFFSET :index")
     fun findStreetByIndex(cityId: String, index: Int): Street?
 
-    @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.districtId WHERE d.districtId = :districtId AND s.cityId = :cityId ORDER BY s.id ASC LIMIT 1 OFFSET :index")
+    @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.streetId WHERE d.districtId = :districtId AND s.cityId = :cityId ORDER BY s.id ASC LIMIT 1 OFFSET :index")
     fun findStreetByIndex(cityId: String, districtId: String, index: Int): Street?
 
     @Query("SELECT * FROM street WHERE cityId = :cityId")
     fun findAll(cityId: String): List<Street>
 
-    @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.districtId WHERE d.districtId = :districtId AND s.cityId = :cityId GROUP BY s.id")
+    @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.streetId WHERE d.districtId = :districtId AND s.cityId = :cityId GROUP BY s.id")
     fun findAll(cityId: String, districtId: String): List<Street>
 
     @Query("UPDATE street SET flaggedForDeletion = 1 WHERE cityId = :cityId")
