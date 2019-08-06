@@ -2,9 +2,12 @@ package at.trycatch.streets.viewmodel
 
 import android.app.Application
 import android.location.Location
+import android.os.Handler
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import at.trycatch.streets.data.CityProvider
+import at.trycatch.streets.data.DistrictProvider
 import at.trycatch.streets.data.GameServiceLayer
 import at.trycatch.streets.data.Settings
 import at.trycatch.streets.model.Street
@@ -29,10 +32,13 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     private var districtId: String? = null
 
     val gameService: GameServiceLayer = GameServiceLayer(application)
+    val districtProvider = DistrictProvider(application)
+    val cityProvider = CityProvider(application)
 
     var testMode = false
     var currentIndex = -1
 
+    val selectedDistrictString = MutableLiveData<String>()
     val points = MutableLiveData<Long>()
     val currentGameState = MutableLiveData<Int>()
     val streetLines = MutableLiveData<MutableList<LineString>>()
@@ -49,9 +55,23 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     private val settings = Settings(application)
 
     init {
+        selectedDistrictString.postValue("Graz")
         currentGameState.postValue(STATE_GUESSING)
         points.postValue(settings.getPoints())
         districtId = settings.getDistrict()
+        updateDistrictInfo()
+    }
+
+    private fun updateDistrictInfo() {
+        if (districtId != null) {
+            districtProvider.getAllDistrictsWithProgress(cityId) {
+                selectedDistrictString.postValue(it.filter { districtId == it.district.id }.map { it.district.displayName }.first())
+            }
+        } else {
+            cityProvider.getCityWithProgress(cityId) {
+                selectedDistrictString.postValue(it?.city?.displayName)
+            }
+        }
     }
 
     fun setDistrictId(districtId: String?) {
@@ -59,6 +79,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
             this.districtId = districtId
             startNewRound()
         }
+        updateDistrictInfo()
     }
 
     fun startNewRound() {
@@ -104,6 +125,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         // If we haven't already won we need to surrender.
         if (currentGameState.value == STATE_GUESSING) {
             currentGameState.postValue(STATE_SURRENDERED)
+            updateCurrentStreet(false)
             subtractPoints()
         }
 
@@ -259,6 +281,8 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
             gameService.updateStreet(it)
         }
+
+        Handler().postDelayed({ updateDistrictInfo() }, 100)
     }
 
     fun LineString.getDistance(position: Position) = getDistance(LatLng(position.latitude, position.longitude))

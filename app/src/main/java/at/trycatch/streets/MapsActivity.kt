@@ -140,6 +140,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
+        model.selectedDistrictString.observe(this, Observer {
+            tvTitle.text = it
+        })
+
         confirm.setOnClickListener {
             FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SOLVED, null)
             if (model.solve()) {
