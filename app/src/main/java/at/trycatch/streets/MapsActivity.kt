@@ -142,10 +142,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         model.points.observe(this, Observer {
             tvPoints.text = it?.toString()
-            if (it != null && it < 0) {
-                tvPoints.setBackgroundResource(R.drawable.bg_red_rounded)
-            } else {
-                tvPoints.setBackgroundResource(R.drawable.bg_accent_rounded)
+            it?.let { points ->
+                when {
+                    points < 0 -> tvPoints.setBackgroundResource(R.drawable.bg_red_rounded)
+                    points >= 100 -> tvPoints.setBackgroundResource(R.drawable.bg_green_rounded)
+                    else -> tvPoints.setBackgroundResource(R.drawable.bg_accent_rounded)
+                }
             }
         })
 
