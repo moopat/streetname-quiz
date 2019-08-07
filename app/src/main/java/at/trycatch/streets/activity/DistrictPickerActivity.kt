@@ -15,15 +15,13 @@ import kotlinx.android.synthetic.main.activity_district_picker.*
 class DistrictPickerActivity : AppCompatActivity() {
 
     private val adapter = DistrictAdapter {
-        it?.let {
-            settings.setDistrict(it)
-            FirebaseAnalytics.getInstance(this)
-                    .logEvent(
-                            Constants.Events.DISTRICT_PICKED,
-                            Bundle().apply {
-                                putString(Constants.Events.DISTRICT_PICKED_ARG_NAME, it)
-                            })
-        }
+        settings.setDistrict(it)
+        FirebaseAnalytics.getInstance(this)
+                .logEvent(
+                        Constants.Events.DISTRICT_PICKED,
+                        Bundle().apply {
+                            putString(Constants.Events.DISTRICT_PICKED_ARG_NAME, it ?: "graz-all")
+                        })
         finish()
     }
 
