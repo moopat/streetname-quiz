@@ -3,17 +3,27 @@ package at.trycatch.streets.activity
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import at.trycatch.streets.Constants
 import at.trycatch.streets.R
 import at.trycatch.streets.adapter.DistrictAdapter
 import at.trycatch.streets.data.CityProvider
 import at.trycatch.streets.data.DistrictProvider
 import at.trycatch.streets.data.Settings
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.android.synthetic.main.activity_district_picker.*
 
 class DistrictPickerActivity : AppCompatActivity() {
 
     private val adapter = DistrictAdapter {
-        settings.setDistrict(it)
+        it?.let {
+            settings.setDistrict(it)
+            FirebaseAnalytics.getInstance(this)
+                    .logEvent(
+                            Constants.Events.DISTRICT_PICKED,
+                            Bundle().apply {
+                                putString(Constants.Events.DISTRICT_PICKED_ARG_NAME, it)
+                            })
+        }
         finish()
     }
 
