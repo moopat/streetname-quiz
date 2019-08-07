@@ -30,4 +30,5 @@
     <string name="quiz_result_failed_2">Wrong!</string>
     <string name="quiz_result_failed_3">Unfortunately, no.</string>
     <string name="quiz_result_failed_4">No, try again!</string>
+    <string name="starter_beta">Beta</string>
 </resources>

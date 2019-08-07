@@ -22,6 +22,15 @@
         android:padding="@dimen/padding_large">
 
         <TextView
+            style="@style/Starter.Beta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            android:padding="8dp"
+            android:text="@string/starter_beta"
+            android:visibility="gone"/>
+
+        <TextView
             style="@style/Starter.Heading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
