@@ -252,7 +252,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         map!!.uiSettings.isLogoEnabled = false
-        map!!.uiSettings.isAttributionEnabled = false
+        map!!.uiSettings.isAttributionEnabled = true
         map!!.uiSettings.isRotateGesturesEnabled = false
         map!!.uiSettings.isCompassEnabled = false
 

@@ -86,7 +86,12 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
         if (testMode) {
             currentIndex++
             gameService.getSequentialStreet(cityId, districtId, currentIndex) {
-                handleNewRound(it)
+                if (it == null && currentIndex > 0) {
+                    currentIndex = -1
+                    startNewRound()
+                } else {
+                    handleNewRound(it)
+                }
             }
         } else {
             gameService.getRandomStreet(cityId, districtId) {

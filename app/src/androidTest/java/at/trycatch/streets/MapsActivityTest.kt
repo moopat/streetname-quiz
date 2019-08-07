@@ -1,5 +1,6 @@
 package at.trycatch.streets
 
+import android.util.Log
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -8,7 +9,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
-import android.util.Log
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.junit.Rule
 import org.junit.Test
@@ -26,24 +26,35 @@ class MapsActivityTest {
 
     @Test
     fun testIteratingAllStreets() {
+
+        Log.d("MapsActivityTest", "Starting test run.")
+
         onView(withId(R.id.btnStart)).perform(click())
         onView(withId(R.id.btnSolution)).check(matches(withText("Lösung")))
 
-        sleep(5000) // Initial wait.
+        sleep(10000) // Initial wait, data import
 
         mActivityRule.activity.model.testMode = true
         mActivityRule.activity.model.startNewRound()
 
-        val firstStreet = mActivityRule.activity.tvStreetName.text
+        sleep(5000)
+
+        var round = 0
+        val firstStreet = mActivityRule.activity.tvStreetName.text.toString()
         var previousStreet = "not this one"
 
-        while (firstStreet != previousStreet) {
-            Log.d("MapsActivityTest", "Testing " + mActivityRule.activity.tvStreetName.text + "...")
+        while (round <= 1 || firstStreet != previousStreet) {
+            val newStreet = mActivityRule.activity.tvStreetName.text.toString()
+            Log.d("MapsActivityTest", "Testing $newStreet...")
             onView(withId(R.id.btnSolution)).perform(click())
             //sleep(800)
             onView(withId(R.id.btnNext)).perform(click())
-            previousStreet = mActivityRule.activity.tvStreetName.text.toString()
+
+            round++
+            previousStreet = newStreet
         }
+
+        Log.d("MapsActivityTest", "Done. $firstStreet == $previousStreet. (${firstStreet == previousStreet})")
     }
 
     /**
