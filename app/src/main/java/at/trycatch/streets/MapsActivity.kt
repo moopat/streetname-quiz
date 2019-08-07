@@ -18,6 +18,7 @@ import at.trycatch.streets.activity.StarterActivity
 import at.trycatch.streets.data.Settings
 import at.trycatch.streets.lifecycle.MapboxLifecycleObserver
 import at.trycatch.streets.service.ImportService
+import at.trycatch.streets.util.MessageUtil
 import at.trycatch.streets.viewmodel.MapsViewModel
 import at.trycatch.streets.widget.MapsPopupMenu
 import com.cocoahero.android.geojson.Feature
@@ -159,6 +160,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.STREET_SOLVED, null)
             if (model.solve()) {
                 FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.ANSWERED_CORRECTLY, null)
+                tvSuccess.setText(MessageUtil().getRandomSuccessMessage())
                 rlSuccess.visibility = View.VISIBLE
                 YoYo.with(Techniques.StandUp).duration(500).playOn(rlSuccess)
                 scheduleToHideNotifications()
@@ -166,6 +168,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 FirebaseAnalytics.getInstance(this).logEvent(Constants.Events.ANSWERED_WRONGLY, null)
                 rlError.visibility = View.VISIBLE
+                tvErrorMessage.setText(MessageUtil().getRandomErrorMessage())
                 tvErrorDetail.text = getString(R.string.solution_incorrect_detail, model.getSelectedStreetName())
                 YoYo.with(Techniques.StandUp).duration(500).playOn(rlError)
                 scheduleToHideNotifications()

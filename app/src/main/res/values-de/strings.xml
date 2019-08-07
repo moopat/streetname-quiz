@@ -21,4 +21,13 @@
     <string name="dialog_points_message">Für jeden richtigen Tipp erhältst du 10 Punkte. Pro Runde bekommst du -3 Punkte wenn du einen falschen Tipp abgibst, die Straße überspringst oder die Lösung ansiehst.</string>
     <string name="districts_city_title">%s (Alle)</string>
     <string name="title_activity_districts">Bezirk wählen</string>
+    <string name="quiz_result_success_1">Ausgezeichnet!</string>
+    <string name="quiz_result_success_2">Richtig!</string>
+    <string name="quiz_result_success_3">Korrekt!</string>
+    <string name="quiz_result_success_4">Gut gemacht!</string>
+    <string name="quiz_result_success_5">Sehr gut!</string>
+    <string name="quiz_result_failed_1">Leider nicht!</string>
+    <string name="quiz_result_failed_2">Falsch!</string>
+    <string name="quiz_result_failed_3">Nein, versuch es nochmal!</string>
+    <string name="quiz_result_failed_4">Oh nein!</string>
 </resources>
