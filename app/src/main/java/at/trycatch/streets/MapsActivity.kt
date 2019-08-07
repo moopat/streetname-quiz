@@ -99,6 +99,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     btnNext.setTextColor(ContextCompat.getColor(this, R.color.semiWhite))
                     btnNext.setText(R.string.button_skip)
+
+                    refocusMap()
                 }
                 MapsViewModel.STATE_WON -> {
                     mayClickMap = false
@@ -152,8 +154,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-        model.selectedDistrictString.observe(this, Observer {
-            tvTitle.text = it
+        model.selectedDistrict.observe(this, Observer {
+            tvTitle.text = it.displayName
+            if (model.currentGameState.value == MapsViewModel.STATE_GUESSING) {
+                refocusMap()
+            }
         })
 
         confirm.setOnClickListener {
@@ -206,6 +211,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         registerReceiver(receiver, IntentFilter(Constants.Broadcasts.ACTION_UPDATE_DONE))
+    }
+
+    private fun refocusMap() {
+        model.selectedDistrict.value?.let {
+            it.geoBounds?.let { bound ->
+                val bounds = LatLngBounds.Builder()
+                        .include(LatLng(bound.east.latitude, bound.east.longitude))
+                        .include(LatLng(bound.south.latitude, bound.south.longitude))
+                        .include(LatLng(bound.west.latitude, bound.west.longitude))
+                        .include(LatLng(bound.north.latitude, bound.north.longitude)).build()
+                map?.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10))
+                return
+            }
+        }
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(47.0707, 15.4395), 11.0))
     }
 
     override fun onResume() {
@@ -261,8 +281,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map!!.uiSettings.isRotateGesturesEnabled = false
         map!!.uiSettings.isCompassEnabled = false
 
-        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(47.0707, 15.4395), 11.0))
-
         try {
 
             doAsync {
@@ -283,6 +301,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
+
+        refocusMap()
     }
 
     private fun startBounceAnimation() {

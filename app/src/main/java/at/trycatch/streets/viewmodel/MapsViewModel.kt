@@ -10,6 +10,7 @@ import at.trycatch.streets.data.CityProvider
 import at.trycatch.streets.data.DistrictProvider
 import at.trycatch.streets.data.GameServiceLayer
 import at.trycatch.streets.data.Settings
+import at.trycatch.streets.model.PickedDistrict
 import at.trycatch.streets.model.Street
 import com.cocoahero.android.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -38,7 +39,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     var testMode = false
     var currentIndex = -1
 
-    val selectedDistrictString = MutableLiveData<String>()
+    val selectedDistrict = MutableLiveData<PickedDistrict>()
     val points = MutableLiveData<Long>()
     val currentGameState = MutableLiveData<Int>()
     val streetLines = MutableLiveData<MutableList<LineString>>()
@@ -55,7 +56,10 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     private val settings = Settings(application)
 
     init {
-        selectedDistrictString.postValue("Graz")
+        selectedDistrict.postValue(PickedDistrict("graz").apply {
+            isCity = true
+            displayName = "Graz"
+        })
         currentGameState.postValue(STATE_GUESSING)
         points.postValue(settings.getPoints())
         districtId = settings.getDistrict()
@@ -65,11 +69,28 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateDistrictInfo() {
         if (districtId != null) {
             districtProvider.getAllDistrictsWithProgress(cityId) {
-                selectedDistrictString.postValue(it.filter { districtId == it.district.id }.map { it.district.displayName }.first())
+                val district = it.filter { districtId == it.district.id }.first()
+                selectedDistrict.postValue(PickedDistrict(district.district.cityId).apply {
+                    isCity = false
+                    geoBounds = district.district.geoBounds
+                    displayName = district.district.displayName
+                    districtId = district.district.id
+                    totalStreets = district.totalStreets
+                    solvedStreets = district.solvedStreets
+                })
             }
         } else {
             cityProvider.getCityWithProgress(cityId) {
-                selectedDistrictString.postValue(it?.city?.displayName)
+                it?.let {
+                    selectedDistrict.postValue(PickedDistrict(it.city.id).apply {
+                        isCity = true
+                        geoBounds = it.city.geoBounds
+                        displayName = it.city.displayName
+                        districtId = it.city.id
+                        totalStreets = it.totalStreets
+                        solvedStreets = it.solvedStreets
+                    })
+                }
             }
         }
     }
