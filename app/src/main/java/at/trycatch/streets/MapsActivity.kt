@@ -253,7 +253,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             YoYo.with(Techniques.FadeOut).onEnd { rlLoading.visibility = View.GONE }.playOn(rlLoading)
         }
 
-        map!!.uiSettings.isLogoEnabled = false
+        map!!.uiSettings.isLogoEnabled = true
         map!!.uiSettings.isAttributionEnabled = true
         map!!.uiSettings.isRotateGesturesEnabled = false
         map!!.uiSettings.isCompassEnabled = false

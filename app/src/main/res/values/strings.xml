@@ -21,4 +21,6 @@
     <string name="dialog_points_message">You will get 10 points for every right guess, and minus 3 points (per round) if you either skip a street, make a wrong guess, or view the solution.</string>
     <string name="title_activity_districts">Pick a district</string>
     <string name="districts_city_title">%s (All)</string>
+    <string name="quiz_result_success_1">Well done!</string>
+    <string name="quiz_result_failed_1">Oh no!</string>
 </resources>
