@@ -27,8 +27,20 @@ interface StreetDao {
     @Query("SELECT * FROM street WHERE cityId = :cityId")
     fun findAll(cityId: String): List<Street>
 
+    @Query("SELECT * FROM street WHERE cityId = :cityId AND consecutiveCorrectGuesses >= :minCount")
+    fun findAllByCorrectGuesses(cityId: String, minCount: Int): List<Street>
+
+    @Query("SELECT * FROM street WHERE cityId = :cityId AND consecutiveCorrectGuesses = 0")
+    fun findAllWithoutCorrectAnswer(cityId: String): List<Street>
+
     @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.streetId WHERE d.districtId = :districtId AND s.cityId = :cityId GROUP BY s.id")
     fun findAll(cityId: String, districtId: String): List<Street>
+
+    @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.streetId WHERE s.consecutiveCorrectGuesses = 0 AND d.districtId = :districtId AND s.cityId = :cityId GROUP BY s.id")
+    fun findAllWithoutCorrectAnswer(cityId: String, districtId: String): List<Street>
+
+    @Query("SELECT s.* FROM street s LEFT JOIN streettodistrict d ON s.id = d.streetId WHERE s.consecutiveCorrectGuesses >= :minCount AND d.districtId = :districtId AND s.cityId = :cityId GROUP BY s.id")
+    fun findAllByCorrectGuesses(cityId: String, districtId: String, minCount: Int): List<Street>
 
     @Query("UPDATE street SET flaggedForDeletion = 1 WHERE cityId = :cityId")
     fun flagStreetsAsDeletable(cityId: String)

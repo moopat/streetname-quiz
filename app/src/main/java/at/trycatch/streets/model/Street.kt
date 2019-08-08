@@ -21,4 +21,22 @@ class Street {
 
     var version: Int = 0
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Street
+
+        if (id != other.id) return false
+        if (cityId != other.cityId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + cityId.hashCode()
+        return result
+    }
+
 }

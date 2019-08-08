@@ -56,4 +56,20 @@ class StreetProvider(private val context: Context) {
         }
     }
 
+    fun getAllUnanswered(cityId: String, districtId: String?): List<Street> {
+        return if (districtId == null) {
+            db.database.getStreetDao().findAllWithoutCorrectAnswer(cityId)
+        } else {
+            db.database.getStreetDao().findAllWithoutCorrectAnswer(cityId, districtId)
+        }
+    }
+
+    fun getAllCorrectlyAnswered(cityId: String, districtId: String?): List<Street> {
+        return if (districtId == null) {
+            db.database.getStreetDao().findAllByCorrectGuesses(cityId, 1)
+        } else {
+            db.database.getStreetDao().findAllByCorrectGuesses(cityId, districtId, 1)
+        }
+    }
+
 }

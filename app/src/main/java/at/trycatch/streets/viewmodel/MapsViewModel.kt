@@ -115,7 +115,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         } else {
-            gameService.getRandomStreet(cityId, districtId) {
+            gameService.getRandomStreet(currentObjective.value, cityId, districtId) {
                 handleNewRound(it)
             }
         }
