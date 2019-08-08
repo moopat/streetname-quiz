@@ -157,6 +157,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         model.selectedDistrict.observe(this, Observer {
             tvTitle.text = it.displayName
+            progress.max = it.totalStreets
+            progress.progress = it.solvedStreets
+
             if (model.currentGameState.value == MapsViewModel.STATE_GUESSING) {
                 refocusMap()
             }

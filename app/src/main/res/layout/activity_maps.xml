@@ -137,6 +137,19 @@
         android:textSize="@dimen/text_large"
         tools:ignore="HardcodedText"/>
 
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_below="@id/tvTitle"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toStartOf="@id/tvPoints"
+        android:indeterminate="false"
+        android:progress="0"
+        android:progressBackgroundTint="@color/white"/>
+
     <RelativeLayout
         android:id="@+id/rlSuccess"
         android:layout_width="match_parent"
