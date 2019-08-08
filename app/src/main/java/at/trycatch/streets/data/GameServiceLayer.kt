@@ -32,8 +32,10 @@ class GameServiceLayer(context: Context) {
 
             val street = if (useCorrectAnswer && correctlyAnswered.size > 0) {
                 correctlyAnswered.shuffled(random).first()
-            } else {
+            } else if (incorrectlyAnswered.size > 0) {
                 incorrectlyAnswered.shuffled(random).first()
+            } else {
+                correctlyAnswered.shuffled(random).firstOrNull()
             }
 
             callback.invoke(street)
