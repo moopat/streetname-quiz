@@ -46,7 +46,6 @@ import java.io.IOException
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
     companion object {
         const val RC_TERMS = 101
     }
@@ -71,6 +70,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Mapbox.getInstance(this, "pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ")
+
         setContentView(R.layout.activity_maps)
 
         if (!Settings(this).hasAcceptedLatestTerms()) {
@@ -80,14 +82,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Import Data
         ImportService.startImport(this)
 
-        Mapbox.getInstance(this, "pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ")
         mapComponent = MapboxLifecycleObserver(mapView, savedInstanceState)
         lifecycle.addObserver(mapComponent)
         mapView.getMapAsync(this)
 
         model = ViewModelProviders.of(this).get(MapsViewModel::class.java)
 
-        model.startNewRound() // TODO: Wait until import has finished
+        model.startNewRound()
 
         model.currentGameState.observe(this, Observer {
             if (it == null) return@Observer
@@ -252,16 +253,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapComponent.handleSaveInstanceState(outState)
     }
 
-    override fun onMapReady(mapboxMap: MapboxMap?) {
-        if (mapboxMap == null) return
+    override fun onMapReady(mapboxMap: MapboxMap) {
 
         map = mapboxMap
 
-        map!!.setStyleUrl("mapbox://styles/moopat/cjndg38970vq62rnu542m5fhf") { _ ->
+        map!!.setStyle("mapbox://styles/moopat/cjndg38970vq62rnu542m5fhf") { style ->
             val featureCollection = com.mapbox.geojson.FeatureCollection.fromFeatures(mutableListOf())
 
             selectionSource = GeoJsonSource("selection-source", featureCollection)
-            map!!.addSource(selectionSource!!)
+            style.addSource(selectionSource!!)
 
             selectionLayer = LineLayer("selection-layer", "selection-source")
             selectionLayer?.setProperties(
@@ -271,7 +271,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     PropertyFactory.lineOpacity(1f),
                     PropertyFactory.lineColor(Color.parseColor("#ffffff"))
             )
-            map!!.addLayer(selectionLayer!!)
+            style.addLayer(selectionLayer!!)
 
             YoYo.with(Techniques.FadeOut).onEnd { rlLoading.visibility = View.GONE }.playOn(rlLoading)
         }
@@ -290,10 +290,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             map!!.addOnMapClickListener { latLng ->
                 if (!mayClickMap) {
                     startBounceAnimation(0)
-                    return@addOnMapClickListener
+                    return@addOnMapClickListener true
                 }
                 hideNotificationsNow()
                 model.makeSelectionByCoordinates(latLng)
+                return@addOnMapClickListener true
             }
 
         } catch (e: IOException) {
