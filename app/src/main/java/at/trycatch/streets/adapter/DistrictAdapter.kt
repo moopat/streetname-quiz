@@ -58,8 +58,8 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
         holder.tvTitle.text = holder.itemView.context.getString(R.string.districts_city_title, city.city.displayName)
         holder.tvTitle.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_inline_city), null, null, null)
 
-        holder.progress.progress = city.solvedStreets
         holder.progress.max = city.totalStreets
+        holder.progress.progress = city.solvedStreets
 
         holder.itemView.setOnClickListener { callback.invoke(null) }
     }
@@ -68,8 +68,8 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
         holder.tvTitle.text = district.district.displayName
         holder.tvTitle.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
 
-        holder.progress.progress = district.solvedStreets
         holder.progress.max = district.totalStreets
+        holder.progress.progress = district.solvedStreets
 
         holder.itemView.setOnClickListener { callback.invoke(district.district.id) }
     }

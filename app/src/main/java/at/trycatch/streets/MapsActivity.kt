@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
@@ -158,7 +159,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         model.selectedDistrict.observe(this, Observer {
             tvTitle.text = it.displayName
             progress.max = it.totalStreets
-            progress.progress = it.solvedStreets
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                progress.setProgress(it.solvedStreets, true)
+            } else {
+                progress.progress = it.solvedStreets
+            }
 
             if (model.currentGameState.value == MapsViewModel.STATE_GUESSING) {
                 refocusMap()
