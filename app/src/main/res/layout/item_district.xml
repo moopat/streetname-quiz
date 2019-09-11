@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -14,10 +13,11 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:id="@+id/ivBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/bg_district"/>
+            android:src="@drawable/bg_district" />
 
         <ProgressBar
             android:id="@+id/progress"
@@ -28,7 +28,7 @@
             android:layout_margin="8dp"
             android:indeterminate="false"
             android:progress="40"
-            android:progressBackgroundTint="@color/white"/>
+            android:progressBackgroundTint="@color/white" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -40,7 +40,7 @@
             android:drawablePadding="8dp"
             android:textColor="@color/white"
             android:textSize="@dimen/text_medium"
-            tools:text="St. Leonhardt"/>
+            tools:text="St. Leonhardt" />
 
     </RelativeLayout>
 

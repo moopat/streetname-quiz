@@ -9,6 +9,9 @@ import at.trycatch.streets.R
 import at.trycatch.streets.adapter.vh.DistrictViewHolder
 import at.trycatch.streets.model.CityWithProgress
 import at.trycatch.streets.model.DistrictWithProgress
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import jp.wasabeef.glide.transformations.BlurTransformation
 
 /**
  * @author Markus Deutsch <markus@moop.at>
@@ -59,6 +62,9 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
         holder.tvTitle.text = holder.itemView.context.getString(R.string.districts_city_title, city.city.displayName)
         holder.tvTitle.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_inline_city), null, null, null)
 
+        Glide.with(holder.ivBackground).clear(holder.ivBackground)
+        Glide.with(holder.ivBackground).load(R.drawable.bg_district).into(holder.ivBackground)
+
         holder.progress.max = city.totalStreets
         holder.progress.progress = city.solvedStreets
 
@@ -68,6 +74,12 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
     private fun bindDistrict(holder: DistrictViewHolder, district: DistrictWithProgress) {
         holder.tvTitle.text = district.district.displayName
         holder.tvTitle.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+
+        Glide.with(holder.ivBackground).clear(holder.ivBackground)
+        Glide.with(holder.ivBackground)
+                .load("file:///android_asset/${district.district.id}.jpg")
+                .apply(RequestOptions.bitmapTransform(BlurTransformation(5, 2)))
+                .into(holder.ivBackground)
 
         Log.d("DistrictAdapter", "Binding district $district")
 
