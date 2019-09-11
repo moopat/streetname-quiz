@@ -18,6 +18,13 @@ import jp.wasabeef.glide.transformations.BlurTransformation
  */
 class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : RecyclerView.Adapter<DistrictViewHolder>() {
 
+    companion object {
+
+        const val BLUR_RADIUS = 4
+        const val BLUR_SAMPLING = 2
+
+    }
+
     private val data = mutableListOf<Any>()
 
     private val districts = mutableListOf<DistrictWithProgress>()
@@ -65,7 +72,7 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
         Glide.with(holder.ivBackground).clear(holder.ivBackground)
         Glide.with(holder.ivBackground)
                 .load("file:///android_asset/${city.city.id}.jpg")
-                .apply(RequestOptions.bitmapTransform(BlurTransformation(5, 2)))
+                .apply(RequestOptions.bitmapTransform(BlurTransformation(BLUR_RADIUS, BLUR_SAMPLING)))
                 .into(holder.ivBackground)
 
         holder.progress.max = city.totalStreets
@@ -81,7 +88,7 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
         Glide.with(holder.ivBackground).clear(holder.ivBackground)
         Glide.with(holder.ivBackground)
                 .load("file:///android_asset/${district.district.id}.jpg")
-                .apply(RequestOptions.bitmapTransform(BlurTransformation(5, 2)))
+                .apply(RequestOptions.bitmapTransform(BlurTransformation(BLUR_RADIUS, BLUR_SAMPLING)))
                 .into(holder.ivBackground)
 
         Log.d("DistrictAdapter", "Binding district $district")
