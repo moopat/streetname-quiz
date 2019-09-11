@@ -14,8 +14,8 @@ android {
         applicationId "at.trycatch.streets"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 8
-        versionName "1.4.1"
+        versionCode 9
+        versionName "1.5-alpha.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
