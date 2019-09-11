@@ -37,8 +37,12 @@ task generateStreets(dependsOn: 'run') {
 
     doLast {
         copy {
-            from 'output/'
+            from 'output/raw/'
             into '../app/src/main/res/raw'
+        }
+        copy {
+            from 'output/assets/'
+            into '../app/src/main/assets'
         }
     }
 }

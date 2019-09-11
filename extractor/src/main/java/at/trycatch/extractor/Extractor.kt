@@ -8,12 +8,15 @@ import org.geojson.MultiPolygon
 import org.geojson.Point
 import org.tukaani.xz.XZInputStream
 import java.io.*
+import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Collectors
+import javax.imageio.ImageIO
 import kotlin.streams.toList
 
 
@@ -25,11 +28,16 @@ class Extractor(private val cityId: String) {
 
     }
 
-    val outputDir = File("output")
+    val rawOutputDir: File
+    val assetOutputDir: File
     val cacheDir = File("build/tmp")
 
     init {
-        outputDir.mkdirs()
+        val outputDir = File("output")
+        // TODO: Wipe output dir.
+
+        rawOutputDir = File(outputDir, "raw").apply { mkdirs() }
+        assetOutputDir = File(outputDir, "assets").apply { mkdirs() }
     }
 
     @Throws(Exception::class)
@@ -85,7 +93,7 @@ class Extractor(private val cityId: String) {
         // Write feature collection
         val newFeatureCollection = FeatureCollection()
         newFeatureCollection.addAll(eligibleFeatures)
-        ObjectMapper().writeValue(File(outputDir.path + "/$cityId" + "_geodata.json"), newFeatureCollection)
+        ObjectMapper().writeValue(File(rawOutputDir.path + "/$cityId" + "_geodata.json"), newFeatureCollection)
 
         // Load bounds
         val districts = getDistricts()
@@ -123,6 +131,8 @@ class Extractor(private val cityId: String) {
         val usableStreets = streets.filterNot { missingStreets.contains(it.key) }.toList()
         writeStreetIndex(usableStreets, districts)
 
+        // Generate the district previews.
+        generateDistrictPreviews(districts)
     }
 
     private fun getStreetNames(): List<Street> {
@@ -160,7 +170,7 @@ class Extractor(private val cityId: String) {
     private fun unpackFile(path: String): String {
         val stream = javaClass.classLoader.getResourceAsStream(path)
         val bufferedStream = BufferedInputStream(stream!!)
-        val outPath = cacheDir.path + "/unpacked-" + Random().nextInt()
+        val outPath = cacheDir.apply { mkdirs() }.path + "/unpacked-" + Random().nextInt()
         val out = FileOutputStream(outPath)
         val xzIn = XZInputStream(bufferedStream)
 
@@ -183,7 +193,7 @@ class Extractor(private val cityId: String) {
         builder.append(city.geoBounds!!.south).append(";")
         builder.append(city.geoBounds!!.west).append(";")
 
-        val writer = FileWriter(outputDir.path + "/cities.csv")
+        val writer = FileWriter(rawOutputDir.path + "/cities.csv")
         writer.write(builder.toString() + "\n")
         writer.close()
     }
@@ -204,9 +214,43 @@ class Extractor(private val cityId: String) {
                     .append("\n")
         }
 
-        val writer = FileWriter(outputDir.path + "/$cityId" + "_districts.csv")
+        val writer = FileWriter(rawOutputDir.path + "/$cityId" + "_districts.csv")
         writer.write(builder.toString())
         writer.close()
+    }
+
+    private fun generateDistrictPreviews(districts: List<District>) {
+        // https://api.mapbox.com/styles/v1/moopat/cjndg38970vq62rnu542m5fhf/static/-122.4241,37.78,14.25/700x409?access_token=pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ&logo=false&attribution=false
+
+        val style = "cjndg38970vq62rnu542m5fhf"
+        val user = "moopat"
+        val key = "pk.eyJ1IjoibW9vcGF0IiwiYSI6IlNVNU5xQVEifQ.73yuoRIlKsGZ9zVBjkjSZQ"
+        val zoom = 13.0f
+        val dimens = "700x409"
+
+        districts.forEach { district ->
+            val avgLatitude = (district.geoBounds!!.north.latitude + district.geoBounds!!.south.latitude) / 2
+            val avgLongitude = (district.geoBounds!!.west.longitude + district.geoBounds!!.east.longitude) / 2
+
+            val url = "https://api.mapbox.com/styles/v1/$user/$style/static/$avgLongitude,$avgLatitude,$zoom/$dimens?access_token=$key&logo=false&attribution=false"
+
+            println(district.name + ": " + url)
+
+            val inStream = URL(url).openStream()
+            val pngFile = File(File(cacheDir, "thumbs").apply { mkdirs() }, "${district.id}.png")
+            Files.copy(inStream, Paths.get(pngFile.toURI()), StandardCopyOption.REPLACE_EXISTING)
+            val jpgFile = File(assetOutputDir, "${district.id}.jpg")
+
+            convertPngToJpg(pngFile, jpgFile)
+
+            // TODO: Copy file to Android project
+        }
+
+    }
+
+    private fun convertPngToJpg(png: File, jpg: File) {
+        val img = ImageIO.read(png)
+        ImageIO.write(img, "jpg", jpg)
     }
 
     private fun writeStreetIndex(streets: List<Street>, districts: List<District>) {
@@ -224,7 +268,7 @@ class Extractor(private val cityId: String) {
             }
         }
 
-        val writer = FileWriter(outputDir.path + "/$cityId" + "_streets.csv")
+        val writer = FileWriter(rawOutputDir.path + "/$cityId" + "_streets.csv")
         writer.write(builder.toString())
         writer.close()
     }

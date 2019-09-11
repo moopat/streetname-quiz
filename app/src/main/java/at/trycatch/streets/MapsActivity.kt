@@ -256,7 +256,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapComponent.handleLowMemory()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         mapComponent.handleSaveInstanceState(outState)
     }

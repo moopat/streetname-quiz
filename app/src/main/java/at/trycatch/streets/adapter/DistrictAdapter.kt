@@ -1,5 +1,6 @@
 package at.trycatch.streets.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -67,6 +68,8 @@ class DistrictAdapter(private val callback: (districtId: String?) -> Unit) : Rec
     private fun bindDistrict(holder: DistrictViewHolder, district: DistrictWithProgress) {
         holder.tvTitle.text = district.district.displayName
         holder.tvTitle.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+
+        Log.d("DistrictAdapter", "Binding district $district")
 
         holder.progress.max = district.totalStreets
         holder.progress.progress = district.solvedStreets
