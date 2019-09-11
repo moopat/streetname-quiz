@@ -234,17 +234,23 @@ class Extractor(private val cityId: String) {
 
             val url = "https://api.mapbox.com/styles/v1/$user/$style/static/$avgLongitude,$avgLatitude,$zoom/$dimens?access_token=$key&logo=false&attribution=false"
 
-            println(district.name + ": " + url)
-
             val inStream = URL(url).openStream()
             val pngFile = File(File(cacheDir, "thumbs").apply { mkdirs() }, "${district.id}.png")
             Files.copy(inStream, Paths.get(pngFile.toURI()), StandardCopyOption.REPLACE_EXISTING)
             val jpgFile = File(assetOutputDir, "${district.id}.jpg")
 
             convertPngToJpg(pngFile, jpgFile)
-
-            // TODO: Copy file to Android project
         }
+
+        // Also download graz.
+        // TODO: Shouldn't be hardcoded!
+        val url = "https://api.mapbox.com/styles/v1/$user/$style/static/15.4395,47.0707,12/$dimens?access_token=$key&logo=false&attribution=false"
+        val inStream = URL(url).openStream()
+        val pngFile = File(File(cacheDir, "thumbs").apply { mkdirs() }, "graz.png")
+        Files.copy(inStream, Paths.get(pngFile.toURI()), StandardCopyOption.REPLACE_EXISTING)
+        val jpgFile = File(assetOutputDir, "graz.jpg")
+
+        convertPngToJpg(pngFile, jpgFile)
 
     }
 

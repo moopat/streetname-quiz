@@ -16,8 +16,8 @@
             android:id="@+id/ivBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/bg_district" />
+            android:background="@color/mapBackground"
+            android:scaleType="centerCrop" />
 
         <ProgressBar
             android:id="@+id/progress"
